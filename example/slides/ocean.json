@@ -1,0 +1,10 @@
+{
+	"alt" : "ocean slide", 
+	"indexup" : "/images/ocean_index-up.png", 
+	"indexover" : "/images/ocean_index-over.png",
+	"slider" : "/images/ocean_slider.png",
+	"stampup" : "/images/ocean_stamp-up.png",
+	"stampover" : "/images/ocean_stamp-over.png",
+	"product_link" : "http://aaronmartins.com",
+	"stamp_top_css" : "260px"
+}

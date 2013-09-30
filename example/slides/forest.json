@@ -1,0 +1,10 @@
+{
+	"alt" : "forest slide", 
+	"indexup" : "/images/forest_index-up.png", 
+	"indexover" : "/images/forest_index-over.png",
+	"slider" : "/images/forest_slider.png",
+	"stampup" : "/images/forest_stamp-up.png",
+	"stampover" : "/images/forest_stamp-over.png",
+	"product_link" : "http://aaronmartins.com",
+	"stamp_top_css" : "260px"
+}
