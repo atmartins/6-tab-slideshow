@@ -65,11 +65,11 @@
 		 * @param integer (the slot to place it in the slideshow, 1-6)
 		 */
 		addToQueue : function(slideUrl, slot){
+			//say('Adding to Queue: ' + slideUrl + ' at slot ' + slot);
 			//Check if an object exists in the queue for this slot number
-			var inQueue = this.getIndexBySlot(slot);
-			if(inQueue){
-				//overwrite current queue position. only one slide allowed
-				this.queue[inQueue] = {
+			if(this.inQueue(slot)){
+				//overwrite current queue position. only one slide allowed per slot
+				this.queue[this.getIndexBySlot(slot)] = {
 					url:slideUrl,
 					slot:slot
 				};
@@ -82,13 +82,21 @@
 		},
 
 		/**
+		 * Empty the contents of the Ajax queue.
+		 * Useful for unit testing
+		 */
+		emptyQueue : function(){
+			this.queue = [];
+		},
+
+		/**
 		 * Return the URL for a slideshow slot.
 		 * @param integer (slot, 1-6)
 		 * @return string (slide url)
 		 */
 		getUrlBySlot : function(slot){
 			var index = this.getIndexBySlot(slot);
-			if(index > -1 && index != 'undefined'){ //0 is falsy but a valid array index
+			if(index > -1 && index !== 'undefined'){ //0 is falsy but a valid array index
 				return this.queue[index].url;
 			}
 		},
@@ -100,10 +108,23 @@
 		 */
 		getIndexBySlot : function(slot){
 			for(var i = 0; i < this.queue.length; i++){
-				if(this.queue[i]){
+				if(this.queue[i].slot == slot){
 					return i;
 				}
 			}
+		},
+
+		/**
+		 * Return true if the given slot is reserved in our queue for a slide
+		 */
+		inQueue : function(slot){
+			var isIn = false;
+			for(var i = 0; i < this.queue.length; i++){
+				if(this.queue[i].slot == slot){
+					isIn = true;
+				}
+			}
+			return isIn;
 		}
 	};
 
@@ -209,26 +230,27 @@
 	 * @return undefined
 	 */
 	Slideshow.prototype.addSlide = function(slide, slot){
-		if(typeof slide === "string" && typeof slot === "number"){
-			say("!A! registering slide URL for slot " + slot);
-			this.Ajax.addToQueue(slide, slot); //slide is actually a URL here
-			return;
-		};
-		if(Array.isArray(slide) && Array.isArray(slot)){
-			//TODO deregister slides from queue before proceeding (in case attempting to schedule or overwrite)
-			say("!A! Adding slides from array in slots " + slot);
-			for(var i = 0; i < slide.length; i++){
-				this.addSlideObject(slide[i],slot[i]);
-			}
-			return;
-		};
-		if(typeof slide === "object" && typeof slot === "number" && ! Array.isArray(slide) ){
-			//TODO deregister slide from queue before proceeding (in case attempting to schedule or overwrite)
-			say("!A! Adding slide from individual object in slot " + slot);
-			this.addSlideObject(slide,slot);
-			return;
-		};
-		throw new Error("!A! Unable to add slide object(s). Incorrect type combination: " + slide + " slot: "+ slot);
+		if( ! Array.isArray(slide)){
+			slide = [slide];
+		}
+		if( ! Array.isArray(slot)){
+			slot = [slot];
+		}
+
+		for(var i = 0; i < slide.length; i++){
+			if(typeof slide[i] === "string" && typeof slot[i] === "number"){
+				//say("!A! Queueing URLs " + slide + " in slots " + slot);
+				this.Ajax.addToQueue(slide[i], slot[i]); //slide is actually a URL here
+			};
+			if(typeof slide[i] === "object" && typeof slot[i] === "number" && ! Array.isArray(slide[i]) ){
+				if(! this.validSlide(slide[i])){
+					throw new Error("Invalid slide. Attempting to add to slot " + slot[i]);
+				}
+				this.addSlideObject(slide[i], slot[i]);		
+			};
+		}
+
+		//throw new Error("!A! Unable to add slide object(s). Incorrect type combination: typeof slide: " + typeof slide + " typeof slot: "+ typeof slot);
 	}
 
 	/**
@@ -251,7 +273,26 @@
 	 * @return object [slide object]
 	 */
 	Slideshow.prototype.getSlide = function(slot){
-		return this.slides[slot - 1];
+		return this.slides[slot];
+	}
+
+	/**
+	 * Checks if a given object is a valid slideshow slide
+	 * @param object
+	 * @return boolean [true if slide is valid]
+	 */
+	Slideshow.prototype.validSlide = function(slide){
+		return (
+			typeof slide === "object"
+			&& typeof slide.alt           === "string"
+			&& typeof slide.indexup       === "string"
+			&& typeof slide.indexover     === "string"
+			&& typeof slide.slider        === "string"
+			&& typeof slide.stampup       === "string"
+			&& typeof slide.stampover     === "string"
+			&& typeof slide.product_link  === "string"
+			&& typeof slide.stamp_top_css === "string"
+		);
 	}
 
 	/**
