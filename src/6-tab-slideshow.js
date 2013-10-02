@@ -18,8 +18,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+(function( window, $, undefined ) {
 "use strict";
+
+//We must have the jQuery
+if(! window.jQuery ){
+	throw new Error('Slideshow requires jQuery 1.4.2+');
+};
+
+//Add the slideshow object to the window (global) scope
+window.Slideshow = Slideshow;
+
+//Helpful functions
+function isUndefined(value){return typeof value == 'undefined';}
+
+function isDefined(value){return typeof value != 'undefined';}
+
+function isString(value){return typeof value == 'string';}
+
+function isNumber(value){return typeof value == 'number';}
+
+function isObject(value){return value != null && typeof value == 'object';}
+
+function isArray(value) {
+  return toString.apply(value) == '[object Array]';
+}
+
+function isBoolean(value) {
+  return typeof value == 'boolean';
+}
 
 function say(str){
 	if ( console && console.log ) {
@@ -27,13 +54,13 @@ function say(str){
 	}
 }
 
-/* Slideshow object constructor */
+// Slideshow object constructor
 function Slideshow(_htmlId){
 	this.htmlId = _htmlId; //the DOM element to add the slideshow to
 	this.$el = $('#' + _htmlId); //reference to jQuery object for slideshow DOM element
 }
 
-/* Parameters for the slideshow object */
+// Parameters for the slideshow object
 Slideshow.prototype.params = {
 	//after slideshow appears, set to true to prevent future calls to fadeIn.
 	fadedIn            : false,
@@ -310,4 +337,4 @@ Slideshow.prototype.launch = function(slides, loadFirst){
 	};
 }
 
-
+})( window, jQuery );
