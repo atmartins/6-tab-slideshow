@@ -132,14 +132,14 @@ Slideshow.prototype.Ajax = {
 	 * Load the slide objects via AJAX
 	 * When all are done, calls the callback and passes an array of slide objects to it
 	 */
-	processQueue : function(_Slideshow, callback){
+	processQueue : function(scope, callback){
 		say('processing queue')
 		var slides = [];
 		for(var i = 0; i < this.queue.length; i++){
 			//var slotNum = this.queue[i].slot;
 			//var slideUrl = this.queue[i].url;
 			//this.getAjaxSlide(slideUrl, slotNum);
-			this.getSlide(this.queue[i].url, callback, _Slideshow);
+			this.getSlide(this.queue[i].url, callback, scope);
 		}
 		//return callback(slides); //call callback and pass array of valid slides to it
 	},
@@ -149,7 +149,7 @@ Slideshow.prototype.Ajax = {
 	 * @param string slideUrl
 	 * @param int slotNum
 	 */
-	getSlide : function(slideUrl, callback, _Slideshow){
+	getSlide : function(slideUrl, callback, scope){
 		$.ajax({
 			url: slideUrl,
 			cache: true,
@@ -162,14 +162,15 @@ Slideshow.prototype.Ajax = {
 
 				
 				//check if last
-				callback(data, status, _Slideshow.Ajax.queue);
+				//callback(data, status, scope.Ajax.queue);
+				callback(data, status, scope.slides);
 			}
 		}).fail( function(e){
 			throw new Error('failed to load slide');
 			throw new Error(e);
 		});
 
-		return {fakeslide:'hi'}; //TODO get actual slide object here
+		//return {fakeslide:'hi'}; //TODO get actual slide object here
 	}
 };
 
@@ -274,7 +275,7 @@ Slideshow.prototype.begin = function(_slidetostarton) {
 	//say('starting with slide: ' + this.params.slidetostarton);
 	//say('trackheight: ' + this.params.trackheight);
 	
-	this.Ajax.processQueue(this, function(data, status, otherthing2){
+	this.Ajax.processQueue(this, function(data, status, scope){
 		//say('this slot num from URL: ' + _this.ajaxGetslotFromQueue(this.url));
 		//add the slide to the stack at the proper place (slot)
 		//because the success function does not inherit the proper scope,
@@ -285,14 +286,15 @@ Slideshow.prototype.begin = function(_slidetostarton) {
 		//Slideshow.slides.push({test:'hi'});
 		console.log(data);
 		console.log(status);
-		console.log(otherthing2);
+		console.log(scope);
 	});
 	//doesn't return, loads ajax. 
 	//when last ajax is done, callback function passed to this.Ajax.processQueue() is called.
 }
 
-
-
 Slideshow.prototype.launch = function(){
 	say('slides should be resolved, launching app');
+	say(this.slides);
 }
+
+

@@ -112,6 +112,16 @@ describe("Slideshow", function() {
 
   describe("Slideshow begin", function() {
     beforeEach(function() {
+      slideshow.addSlide({
+        "alt" : "rainforest slide dkzj3", 
+        "indexup" : "/images/rainforest_index-up.png", 
+        "indexover" : "/images/rainforest_index-over.png",
+        "slider" : "/images/rainforest_slider.png",
+        "stampup" : "/images/rainforest_stamp-up.png",
+        "stampover" : "/images/rainforest_stamp-over.png",
+        "product_link" : "http://aaronmartins.com",
+        "stamp_top_css" : "260px"
+      },2);
      slideshow.addSlide(
         ["example/slides/forest.json","example/slides/ocean.json"],
         [3,4]
@@ -132,7 +142,7 @@ describe("Slideshow", function() {
 
   describe("add slide by passing an Object", function() {
     beforeEach(function() {
-      slideshow.addSlide({
+     /* slideshow.addSlide({
         "alt" : "rainforest slide", 
         "indexup" : "/images/rainforest_index-up.png", 
         "indexover" : "/images/rainforest_index-over.png",
@@ -141,7 +151,7 @@ describe("Slideshow", function() {
         "stampover" : "/images/rainforest_stamp-over.png",
         "product_link" : "http://aaronmartins.com",
         "stamp_top_css" : "260px"
-      },2);
+      },2);*/
     });
 
     afterEach(function() {
