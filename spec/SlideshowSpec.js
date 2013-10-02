@@ -8,7 +8,7 @@ describe("Slideshow", function() {
   it("should have the correct HTML Id", function() {
     expect(slideshow.htmlId).toEqual('test-id');
   });
-
+/*
   describe("Ajax - add slide by passing a URL", function() {
     beforeEach(function() {
       slideshow.addSlide("example/slides/forest.json",4); //redeclaring an ajax slide doesn't over-ride
@@ -83,7 +83,7 @@ describe("Slideshow", function() {
       expect(slideshow.Ajax.getIndexBySlot(4)).toEqual(1);
     });
   });
-
+*/
   /*
   describe("Ajax -process Ajax queue", function() {
     beforeEach(function() {

@@ -136,12 +136,8 @@ Slideshow.prototype.Ajax = {
 		say('processing queue')
 		var slides = [];
 		for(var i = 0; i < this.queue.length; i++){
-			//var slotNum = this.queue[i].slot;
-			//var slideUrl = this.queue[i].url;
-			//this.getAjaxSlide(slideUrl, slotNum);
-			this.getSlide(this.queue[i].url, callback, scope);
+			this.getSlide(this.queue[i].url, this.queue[i].slot, callback, scope);
 		}
-		//return callback(slides); //call callback and pass array of valid slides to it
 	},
 
 	/**
@@ -149,58 +145,48 @@ Slideshow.prototype.Ajax = {
 	 * @param string slideUrl
 	 * @param int slotNum
 	 */
-	getSlide : function(slideUrl, callback, scope){
+	getSlide : function(slideUrl, slot, callback, scope){
 		$.ajax({
 			url: slideUrl,
 			cache: true,
 			type:'GET',
-			beforeSend: function( xhr ) {
-				say('----ajaxing for slot ' + slideUrl);
-			},
+			beforeSend: function( xhr ) {},
 			success: function(data, status){
-				say('------------ success: this URL: ' + slideUrl);
-
-				
-				//check if last
-				//callback(data, status, scope.Ajax.queue);
-				//scope.Ajax.queueComplete;
+				//add the slide object to slideshow.slides
+				scope.addSlide(data, slot);
 				if(++scope.Ajax.queueComplete == scope.Ajax.queue.length ){
 					callback(data, status, scope);
 				}
-				
 			}
 		}).fail( function(e){
 			throw new Error('failed to load slide');
 			throw new Error(e);
 		});
-
-		//return {fakeslide:'hi'}; //TODO get actual slide object here
 	}
 };
 
-/**
- * Checks if the ajax queue is empty
- * If queue is empty, launch the slideshow
- *
- */
-Slideshow.prototype.ajaxSlideComplete = function(){
-	if(this.Ajax.queue.length == this.ajax.queueComplete){
-		this.launch(); //launch the slideshow
-	}
-}
-
-/**
+/***
  * Add a slide to the slideshow 
- * If passing a URL, the slide is only "registered"
- * See Slideshow.resolveSlides() for more info
  *
  * You may overload a spot.
  * For instance you may add a slide to slot 4 twice when adding slides.
  * The last slide added to a spot is used.
  *
- * @param slide [mixed] ([string] URL, [object] JSON object, or [array] array of JSON objects)
+ * URL Method (string)
+ * SAME DOMAIN ONLY
+ * If passing a URL, the slide is added to a queue.
+ * To add a slide via URL, usually you pass '/slides/slidename.json' as a parameter.
+ *
+ * Object Method (object)
+ * Pass a javascript object literal, or a JSON object as a parameter
+ *
+ * Arrays
+ * You may pass an array slides (using either method described above, URLs or Object literals)
+ *    ! You must also pass an array of slot numbers, not an integer.
+ *    Mixing array and non array arguments will result in an error.
+ *
+ * @param slide [mixed] ([string] URL, [object] JSON object, or [array] of URL or Objects)
  * @param int [slot 1-6] or array of ints (which correlate to the array of JSON objects)
- * @param bool [register] if true, the slide will NOT be deregistered (useful on AJAX completion)
  * @return undefined
  */
 Slideshow.prototype.addSlide = function(slide, slot){
