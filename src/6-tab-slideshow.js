@@ -36,16 +36,24 @@
 	function isArray(value) {return toString.apply(value) === '[object Array]';}
 	function isBoolean(value) {return typeof value === 'boolean';}
 
+	//Avoid IE console
 	function say(str){
 		if ( console && console.log ) {
 			console.log(str);
 		}
 	}
 
-	// Slideshow object constructor
+	/**
+	 * Slideshow object constructor
+	 * When creating a slideshow instance, pass the html ID
+	 */
 	function Slideshow(_htmlId){
-		this.htmlId = _htmlId; //the DOM element to add the slideshow to
+		_htmlId = _htmlId.replace("#", ""); //remove # if present
 		this.$el = $('#' + _htmlId); //reference to jQuery object for slideshow DOM element
+		if(this.$el.length == 0){
+			// no element found
+			throw new Error('Please provide a valid DOM element for the slideshow to populate. Pass an html ID.');
+		}; 
 	}
 
 	// Parameters for the slideshow object
@@ -224,7 +232,7 @@
 	};
 
 
-	/***
+	/**
 	 * Add a slide to the slideshow 
 	 *
 	 * You may overload a spot.
@@ -356,6 +364,7 @@
 	Slideshow.prototype.buildHtml = function(){
 		say('building html');
 		say(this.slides);
+		this.$el.html('dynamic slideshow');
 	}
 
 
