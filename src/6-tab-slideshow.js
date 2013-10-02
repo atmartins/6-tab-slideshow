@@ -91,18 +91,16 @@
 		isNumber(slideToStartOn) ? this.params.slideToStartOn = slideToStartOn : '';
 
 		//Attempt to process the Ajax queue. When done, run the callback
+		//pass this scope so the Ajax callback has access to it
+		//(and our callback function when it's called)
 		var waitForSlides = this.Ajax.processQueue(this, function(data, status, rootScope){
-			//var slideshow = scope;
-			//console.log(data);
-			//console.log(status);
-			//console.log(slideshow);
-			rootScope.launch(rootScope);
+			rootScope.launch();
 		});
 
 		//if the Ajax queue was empty, our callback won't get called
 		//so we call it manually here
 		if(!waitForSlides){
-			this.launch(this.slides)
+			this.launch();
 		}
 	}
 
@@ -307,13 +305,13 @@
 		return (
 			isObject(slide)
 			&& isString(slide.alt)
-			&& typeof slide.indexup       === "string"
-			&& typeof slide.indexover     === "string"
-			&& typeof slide.slider        === "string"
-			&& typeof slide.stampup       === "string"
-			&& typeof slide.stampover     === "string"
-			&& typeof slide.product_link  === "string"
-			&& typeof slide.stamp_top_css === "string"
+			&& isString(slide.indexup)
+			&& isString(slide.indexover)
+			&& isString(slide.slider)
+			&& isString(slide.stampup)
+			&& isString(slide.stampover)
+			&& isString(slide.product_link)
+			&& isString(slide.stamp_top_css)
 		);
 	}
 
@@ -333,34 +331,31 @@
 		return true;
 	}
 
+
 	/**
 	 * The internal method to launch the actual slideshow.
 	 * Do not call this from your web page.
 	 */
-	Slideshow.prototype.launch = function(rootScope){
-		
-		var slideshow = rootScope;
-		//loadFirst == slide to load first (1-6)
-		say('slides should be resolved, launching app');
-		//say(slideshow.slides);
-		say(this.slides);
-		say('^slides');
-		if(slideshow.allSlidesValid(slideshow.slides)){
+	Slideshow.prototype.launch = function(){
+		say('slides should be resolved, launching slideshow');
+		if(this.allSlidesValid(this.slides)){
 			//say('all slides are valid, launching');
 
 			//calculate track height
-			slideshow.params.trackheight = slideshow.params.slideheight * slideshow.params.slidecount;
+			this.params.trackheight = this.params.slideheight * this.params.slidecount;
 
-			slideshow.buildHtml();
+			//build html and add to DOM
+			this.buildHtml();
 		} else {	
-			throw new Error('Slideshow attempting to launch with invalid list of slides: ' + slideshow.slides);
+			throw new Error('Slideshow attempting to launch with invalid list of slides: ' + this.slides);
 		};
 	}
+
 
 	/* If any slides are requested by URL they're added to a queue and processed. */
 	Slideshow.prototype.buildHtml = function(){
 		say('building html');
-		//say(this.slides);
+		say(this.slides);
 	}
 
 
