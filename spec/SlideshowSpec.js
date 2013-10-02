@@ -122,10 +122,11 @@ describe("Slideshow", function() {
         "product_link" : "http://aaronmartins.com",
         "stamp_top_css" : "260px"
       },2);
-     slideshow.addSlide(
+      /*slideshow.addSlide(
         ["example/slides/forest.json","example/slides/ocean.json"],
         [3,4]
-      );
+      );*/
+      //slideshow.addSlide("example/slides/forest.json",3);
     });
 
     afterEach(function() {
@@ -139,10 +140,10 @@ describe("Slideshow", function() {
 
 
 
-
+/*
   describe("add slide by passing an Object", function() {
     beforeEach(function() {
-     /* slideshow.addSlide({
+      slideshow.addSlide({
         "alt" : "rainforest slide", 
         "indexup" : "/images/rainforest_index-up.png", 
         "indexover" : "/images/rainforest_index-over.png",
@@ -151,7 +152,7 @@ describe("Slideshow", function() {
         "stampover" : "/images/rainforest_stamp-over.png",
         "product_link" : "http://aaronmartins.com",
         "stamp_top_css" : "260px"
-      },2);*/
+      },2);
     });
 
     afterEach(function() {
@@ -169,7 +170,7 @@ describe("Slideshow", function() {
       ).toEqual(true);
     });
   }); 
-
+*/
 });
 
 

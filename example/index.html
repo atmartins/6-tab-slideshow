@@ -21,5 +21,33 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
         
         <script src="../src/6-tab-slideshow.js"></script>
+        <script>
+            var slideshow = new Slideshow('myslideshow');
+            slideshow.addSlide({
+                "alt" : "rainforest slide dkzj3", 
+                "indexup" : "/images/rainforest_index-up.png", 
+                "indexover" : "/images/rainforest_index-over.png",
+                "slider" : "/images/rainforest_slider.png",
+                "stampup" : "/images/rainforest_stamp-up.png",
+                "stampover" : "/images/rainforest_stamp-over.png",
+                "product_link" : "http://aaronmartins.com",
+                "stamp_top_css" : "260px"
+            },1);
+            slideshow.addSlide(["../example/slides/forest.json","../example/slides/ocean.json"],
+            [2,3]);
+            slideshow.addSlide(["../example/slides/forest.json","../example/slides/ocean.json"],
+            [4,5]);
+            slideshow.addSlide({
+                "alt" : "rainforest slide dkzj3", 
+                "indexup" : "/images/rainforest_index-up.png", 
+                "indexover" : "/images/rainforest_index-over.png",
+                "slider" : "/images/rainforest_slider.png",
+                "stampup" : "/images/rainforest_stamp-up.png",
+                "stampover" : "/images/rainforest_stamp-over.png",
+                "product_link" : "http://aaronmartins.com",
+                "stamp_top_css" : "260px"
+            },6);
+            slideshow.begin(1);
+        </script>
     </body>
 </html>

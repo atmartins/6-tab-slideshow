@@ -131,13 +131,19 @@ Slideshow.prototype.Ajax = {
 	/**
 	 * Load the slide objects via AJAX
 	 * When all are done, calls the callback and passes an array of slide objects to it
+	 * If the queue is empty, return false
+	 * If slides are being processed, return true
 	 */
 	processQueue : function(scope, callback){
+		if(this.queue.length < 1){
+			return false;
+		}
 		say('processing queue')
 		var slides = [];
 		for(var i = 0; i < this.queue.length; i++){
 			this.getSlide(this.queue[i].url, this.queue[i].slot, callback, scope);
 		}
+		return true;
 	},
 
 	/**
@@ -190,6 +196,7 @@ Slideshow.prototype.Ajax = {
  * @return undefined
  */
 Slideshow.prototype.addSlide = function(slide, slot){
+	
 	if( ! Array.isArray(slide)){
 		slide = [slide];
 	}
@@ -199,10 +206,11 @@ Slideshow.prototype.addSlide = function(slide, slot){
 
 	for(var i = 0; i < slide.length; i++){
 		if(typeof slide[i] === "string" && typeof slot[i] === "number"){
-			//say("!A! Queueing URLs " + slide + " in slots " + slot);
+			say("!A! Queueing URLs " + slide + " in slots " + slot);
 			this.Ajax.addToQueue(slide[i], slot[i]); //slide is actually a URL here
 		};
 		if(typeof slide[i] === "object" && typeof slot[i] === "number" && ! Array.isArray(slide[i]) ){
+			say('adding slide to slot ' + slot);
 			if(! this.validSlide(slide[i])){
 				throw new Error("Invalid slide. Attempting to add to slot " + slot[i]);
 			}
@@ -254,6 +262,21 @@ Slideshow.prototype.validSlide = function(slide){
 }
 
 /**
+ * Checks if we have the specified number of valid slides
+ * (default is 6, see this.params.slidecount)
+ * @param array of slide objects
+ * @return boolean [true if all slides are valid]
+ */
+Slideshow.prototype.allSlidesValid = function(slides){
+	for(var i = 1; i <= this.params.slidecount; i++){
+		if(!this.validSlide(slides[i])){
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
  * Defines several constants.
  * Also calls a few immediate functions (things needed before page load complete)
  * @param int [slide to start the slideshow on]
@@ -261,27 +284,30 @@ Slideshow.prototype.validSlide = function(slide){
 Slideshow.prototype.begin = function(_slidetostarton) {
 	this.params.trackheight = this.params.slideheight * this.params.slidecount;
 	this.params.slidetostarton = _slidetostarton || 1; //default 1
-	//say('Slideshow initiating');
-	//say('starting with slide: ' + this.params.slidetostarton);
-	//say('trackheight: ' + this.params.trackheight);
-	
-	this.Ajax.processQueue(this, function(data, status, scope){
-		//say('this slot num from URL: ' + _this.ajaxGetslotFromQueue(this.url));
-		//add the slide to the stack at the proper place (slot)
-		//because the success function does not inherit the proper scope,
-		//we must look up the proper slot for our slide
-		var slideshow = scope;
-		console.log(data);
-		console.log(status);
-		console.log(slideshow);
+	var waitForSlides = this.Ajax.processQueue(this, function(data, status, scope){
+		//var slideshow = scope;
+		//console.log(data);
+		//console.log(status);
+		//console.log(slideshow);
+		scope.launch(scope.slides);
 	});
+	if(!waitForSlides){
+		this.launch(this.slides)
+	}
 	//doesn't return, loads ajax. 
 	//when last ajax is done, callback function passed to this.Ajax.processQueue() is called.
 }
 
-Slideshow.prototype.launch = function(){
+Slideshow.prototype.launch = function(slides, loadFirst){
+	//loadFirst == slide to load first (1-6)
 	say('slides should be resolved, launching app');
-	say(this.slides);
+	say(slides);
+	
+	if(this.allSlidesValid(slides)){
+		say('all slides are valid');
+	} else {
+		throw new Error('Slideshow attempting to launch with invalid list of slides: ' + slides);
+	};
 }
 
 
