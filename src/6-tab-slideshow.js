@@ -144,10 +144,6 @@
 			//return callback(slides); //call callback and pass array of valid slides to it
 		},
 
-
-//TODO ajax not even firing now?
-
-
 		getSlide : function(slideUrl, callback, _Slideshow){
 			$.ajax({
 				url: slideUrl,
@@ -158,16 +154,10 @@
 				},
 				success: function(data, status){
 					say('------------ success: this URL: ' + slideUrl);
-					//say('this slot num from URL: ' + _this.ajaxGetslotFromQueue(this.url));
-					//add the slide to the stack at the proper place (slot)
-					//because the success function does not inherit the proper scope,
-					//we must look up the proper slot for our slide
-					//slideshow.addSlide(data, slideshow.ajaxGetslotFromQueue(this.url));
-					//slideshow.ajax.queueComplete++; //another request complete
-					//slideshow.ajaxSlideComplete(); //check if this was the last slide (if so, launches slideshow)
-					//Slideshow.slides.push({test:'hi'});
+
+					
 					//check if last
-					callback(data, status, _Slideshow.slides);
+					callback(data, status, _Slideshow.Ajax.queue);
 				}
 			}).fail( function(e){
 				throw new Error('failed to load slide');
@@ -358,6 +348,14 @@
 		//say('trackheight: ' + this.params.trackheight);
 		
 		this.Ajax.processQueue(this, function(data, status, otherthing2){
+			//say('this slot num from URL: ' + _this.ajaxGetslotFromQueue(this.url));
+			//add the slide to the stack at the proper place (slot)
+			//because the success function does not inherit the proper scope,
+			//we must look up the proper slot for our slide
+			//slideshow.addSlide(data, slideshow.ajaxGetslotFromQueue(this.url));
+			//slideshow.ajax.queueComplete++; //another request complete
+			//slideshow.ajaxSlideComplete(); //check if this was the last slide (if so, launches slideshow)
+			//Slideshow.slides.push({test:'hi'});
 			console.log(data);
 			console.log(status);
 			console.log(otherthing2);
