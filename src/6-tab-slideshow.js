@@ -163,7 +163,11 @@ Slideshow.prototype.Ajax = {
 				
 				//check if last
 				//callback(data, status, scope.Ajax.queue);
-				callback(data, status, scope.slides);
+				//scope.Ajax.queueComplete;
+				if(++scope.Ajax.queueComplete == scope.Ajax.queue.length ){
+					callback(data, status, scope);
+				}
+				
 			}
 		}).fail( function(e){
 			throw new Error('failed to load slide');
@@ -280,13 +284,10 @@ Slideshow.prototype.begin = function(_slidetostarton) {
 		//add the slide to the stack at the proper place (slot)
 		//because the success function does not inherit the proper scope,
 		//we must look up the proper slot for our slide
-		//slideshow.addSlide(data, slideshow.ajaxGetslotFromQueue(this.url));
-		//slideshow.ajax.queueComplete++; //another request complete
-		//slideshow.ajaxSlideComplete(); //check if this was the last slide (if so, launches slideshow)
-		//Slideshow.slides.push({test:'hi'});
+		var slideshow = scope;
 		console.log(data);
 		console.log(status);
-		console.log(scope);
+		console.log(slideshow);
 	});
 	//doesn't return, loads ajax. 
 	//when last ajax is done, callback function passed to this.Ajax.processQueue() is called.
