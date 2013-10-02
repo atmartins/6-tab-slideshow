@@ -84,6 +84,49 @@ describe("Slideshow", function() {
     });
   });
 
+  /*
+  describe("Ajax -process Ajax queue", function() {
+    beforeEach(function() {
+      slideshow.addSlide(
+        ["example/slides/forest.json","example/slides/ocean.json"],
+        [3,4]
+      );
+    });
+
+    afterEach(function() {
+    
+    });
+
+    it("should call the provided callback function and pass slide objects to it", function() {
+      expect(
+        slideshow.Ajax.processQueue(
+          function(slides){
+            return slideshow.validSlide(slides[0]);
+            //return slides;
+          })
+      ).toEqual(true);
+    });
+  });
+
+*/
+
+  describe("Slideshow begin", function() {
+    beforeEach(function() {
+     
+    });
+
+    afterEach(function() {
+    
+    });
+
+    it("should process ajax slides", function() {
+      expect(slideshow.begin(1)).toEqual(true);
+    });
+  });
+
+
+
+
   describe("add slide by passing an Object", function() {
     beforeEach(function() {
       slideshow.addSlide({
@@ -113,5 +156,7 @@ describe("Slideshow", function() {
       ).toEqual(true);
     });
   });
+
+  
 
 });

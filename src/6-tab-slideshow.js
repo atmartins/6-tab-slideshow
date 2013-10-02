@@ -125,6 +125,55 @@
 				}
 			}
 			return isIn;
+		},
+
+		/**
+		 * Load the slide objects via AJAX
+		 * When all are done, calls the callback and passes an array of slide objects to it
+		 */
+		processQueue : function(Slideshow, callback){
+			var slides = [];
+			for(var i = 0; i < this.queue.length; i++){
+				//var slotNum = this.queue[i].slot;
+				//var slideUrl = this.queue[i].url;
+				//this.getAjaxSlide(slideUrl, slotNum);
+				this.getSlide(this.queue[i].url, callback);
+			}
+
+			//return callback(slides); //call callback and pass array of valid slides to it
+		},
+
+
+//TODO ajax not even firing now?
+
+
+		getSlide : function(slideUrl, callback){
+			$.ajax({
+				url: slideUrl,
+				cache: true,
+				type:'GET',
+				beforeSend: function( xhr ) {
+					say('----ajaxing for slot ' + slideUrl);
+				},
+				success: function(data){
+					say('------------ success: this URL: ' + slideUrl);
+					//say('this slot num from URL: ' + _this.ajaxGetslotFromQueue(this.url));
+					//add the slide to the stack at the proper place (slot)
+					//because the success function does not inherit the proper scope,
+					//we must look up the proper slot for our slide
+					//slideshow.addSlide(data, slideshow.ajaxGetslotFromQueue(this.url));
+					//slideshow.ajax.queueComplete++; //another request complete
+					//slideshow.ajaxSlideComplete(); //check if this was the last slide (if so, launches slideshow)
+					//Slideshow.slides.push({test:'hi'});
+					//check if last
+					callback(data);
+				}
+			}).fail( function(e){
+				throw new Error('failed to load slide');
+				throw new Error(e);
+			});
+
+			return {fakeslide:'hi'}; //TODO get actual slide object here
 		}
 	};
 
@@ -307,14 +356,15 @@
 		//say('starting with slide: ' + this.params.slidetostarton);
 		//say('trackheight: ' + this.params.trackheight);
 		
-		this.getAjaxSlides();	
+		this.Ajax.processQueue(this, function(data){console.log('data')});
+		//doesn't return, launches slideshow
 	}
 
-	Slideshow.prototype.launch = function(){
+	Slideshow.prototype.launch = function(data){
 		say('slides should be resolved, launching app');
 		//--All slides ready to use at this point--
 		
-		say(slideshow.slides);
+		say(data);
 		//say(slideshow.getSlide(1).alt);
 		//say(slideshow.getSlide(5).alt);
 	}
