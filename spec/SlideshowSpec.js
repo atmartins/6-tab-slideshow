@@ -158,8 +158,89 @@ describe("Slideshow", function() {
         )
       ).toEqual(true);
     });
-  });
-
-  
+  }); 
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+  var slideshow = new Slideshow('myslideshow');
+
+  var desert = {
+    "alt" : "desert slide", 
+    "indexup" : "/images/desert_index-up.png", 
+    "indexover" : "/images/desert_index-over.png",
+    "slider" : "/images/desert_slider.png",
+    "stampup" : "/images/desert_stamp-up.png",
+    "stampover" : "/images/desert_stamp-over.png",
+    "product_link" : "http://aaronmartins.com",
+    "stamp_top_css" : "260px"
+  }
+
+  var multipleSlides = [{
+    "alt" : "mountain slide", 
+    "indexup" : "/images/mountain_index-up.png", 
+    "indexover" : "/images/mountain_index-over.png",
+    "slider" : "/images/mountain_slider.png",
+    "stampup" : "/images/mountain_stamp-up.png",
+    "stampover" : "/images/mountain_stamp-over.png",
+    "product_link" : "http://aaronmartins.com",
+    "stamp_top_css" : "260px"
+  },{
+    "alt" : "lake slide", 
+    "indexup" : "/images/lake_index-up.png", 
+    "indexover" : "/images/lake_index-over.png",
+    "slider" : "/images/lake_slider.png",
+    "stampup" : "/images/lake_stamp-up.png",
+    "stampover" : "/images/lake_stamp-over.png",
+    "product_link" : "http://aaronmartins.com",
+    "stamp_top_css" : "260px"
+  }];
+
+
+  slideshow.addSlide(multipleSlides, [4,2]);
+  slideshow.addSlide(desert, 5);
+  slideshow.addSlide("slides/ocean.json", 1);
+  //slideshow.addSlide("http://uoduckstore.com/promotions/2013/09/test.json", 3);
+  slideshow.addSlide("slides/forest.json", 3);
+  //slideshow.addSlide(mySlide, 3);
+  slideshow.addSlide({
+    "alt" : "rainforest slide", 
+    "indexup" : "/images/rainforest_index-up.png", 
+    "indexover" : "/images/rainforest_index-over.png",
+    "slider" : "/images/rainforest_slider.png",
+    "stampup" : "/images/rainforest_stamp-up.png",
+    "stampover" : "/images/rainforest_stamp-over.png",
+    "product_link" : "http://aaronmartins.com",
+    "stamp_top_css" : "260px"
+  },6);
+  slideshow.addSlide({
+    "alt" : "rainforest slide", 
+    "indexup" : "/images/rainforest_index-up.png", 
+    "indexover" : "/images/rainforest_index-over.png",
+    "slider" : "/images/rainforest_slider.png",
+    "stampup" : "/images/rainforest_stamp-up.png",
+    "stampover" : "/images/rainforest_stamp-over.png",
+    "product_link" : "http://aaronmartins.com",
+    "stamp_top_css" : "260px"
+  },1);
+  slideshow.addSlide("slides/forest.json",1); //redeclaring an ajax slide doesn't over-ride
+  slideshow.begin(4);
+  
+*/
+
+//})(jQuery);
