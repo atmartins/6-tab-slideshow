@@ -131,14 +131,14 @@
 		 * Load the slide objects via AJAX
 		 * When all are done, calls the callback and passes an array of slide objects to it
 		 */
-		processQueue : function(Slideshow, callback){
+		processQueue : function(_Slideshow, callback){
 			say('processing queue')
 			var slides = [];
 			for(var i = 0; i < this.queue.length; i++){
 				//var slotNum = this.queue[i].slot;
 				//var slideUrl = this.queue[i].url;
 				//this.getAjaxSlide(slideUrl, slotNum);
-				this.getSlide(this.queue[i].url, callback);
+				this.getSlide(this.queue[i].url, callback, _Slideshow);
 			}
 
 			//return callback(slides); //call callback and pass array of valid slides to it
@@ -148,7 +148,7 @@
 //TODO ajax not even firing now?
 
 
-		getSlide : function(slideUrl, callback){
+		getSlide : function(slideUrl, callback, _Slideshow){
 			$.ajax({
 				url: slideUrl,
 				cache: true,
@@ -156,7 +156,7 @@
 				beforeSend: function( xhr ) {
 					say('----ajaxing for slot ' + slideUrl);
 				},
-				success: function(data){
+				success: function(data, status){
 					say('------------ success: this URL: ' + slideUrl);
 					//say('this slot num from URL: ' + _this.ajaxGetslotFromQueue(this.url));
 					//add the slide to the stack at the proper place (slot)
@@ -167,7 +167,7 @@
 					//slideshow.ajaxSlideComplete(); //check if this was the last slide (if so, launches slideshow)
 					//Slideshow.slides.push({test:'hi'});
 					//check if last
-					callback(data);
+					callback(data, status, _Slideshow.slides);
 				}
 			}).fail( function(e){
 				throw new Error('failed to load slide');
@@ -357,9 +357,15 @@
 		//say('starting with slide: ' + this.params.slidetostarton);
 		//say('trackheight: ' + this.params.trackheight);
 		
-		this.Ajax.processQueue(this, function(data){console.log(data)});
+		this.Ajax.processQueue(this, function(data, status, otherthing2){
+			console.log(data);
+			console.log(status);
+			console.log(otherthing2);
+		});
 		//doesn't return, launches slideshow
 	}
+
+
 
 	Slideshow.prototype.launch = function(data){
 		say('slides should be resolved, launching app');
