@@ -353,19 +353,25 @@
 			this.params.trackheight = this.params.slideheight * this.params.slidecount;
 
 			//build html and add to DOM
-			this.buildHtml();
+			this.$el.html(this.buildHtml());
+			
+			//TODO this.attachHandlers();
+			//TODO this.fadeIn();
 		} else {	
 			throw new Error('Slideshow attempting to launch with invalid list of slides: ' + this.slides);
 		};
 	}
 
 
-	/* If any slides are requested by URL they're added to a queue and processed. */
+	/**
+	 * Build slideshow HTML and components
+	 */
 	Slideshow.prototype.buildHtml = function(){
 		say('building html');
 		say(this.slides);
-		this.$el.html('dynamic slideshow');
+		return 'best slideshow ever';
 	}
+
 
 
 })( window, jQuery );
