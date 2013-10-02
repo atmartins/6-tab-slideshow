@@ -132,6 +132,7 @@
 		 * When all are done, calls the callback and passes an array of slide objects to it
 		 */
 		processQueue : function(Slideshow, callback){
+			say('processing queue')
 			var slides = [];
 			for(var i = 0; i < this.queue.length; i++){
 				//var slotNum = this.queue[i].slot;
@@ -216,9 +217,9 @@
 			//add the slide to the stack at the proper place (slot)
 			//because the success function does not inherit the proper scope,
 			//we must look up the proper slot for our slide
-			slideshow.addSlide(data, slideshow.ajaxGetslotFromQueue(this.url));
-			slideshow.ajax.queueComplete++; //another request complete
-			slideshow.ajaxSlideComplete(); //check if this was the last slide (if so, launches slideshow)
+			//slideshow.addSlide(data, slideshow.ajaxGetslotFromQueue(this.url));
+			//slideshow.ajax.queueComplete++; //another request complete
+			//slideshow.ajaxSlideComplete(); //check if this was the last slide (if so, launches slideshow)
 		}).fail( function(e){
 			throw new Error('failed to load slide');
 			throw new Error(e);
@@ -356,7 +357,7 @@
 		//say('starting with slide: ' + this.params.slidetostarton);
 		//say('trackheight: ' + this.params.trackheight);
 		
-		this.Ajax.processQueue(this, function(data){console.log('data')});
+		this.Ajax.processQueue(this, function(data){console.log(data)});
 		//doesn't return, launches slideshow
 	}
 

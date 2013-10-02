@@ -112,7 +112,10 @@ describe("Slideshow", function() {
 
   describe("Slideshow begin", function() {
     beforeEach(function() {
-     
+     slideshow.addSlide(
+        ["example/slides/forest.json","example/slides/ocean.json"],
+        [3,4]
+      );
     });
 
     afterEach(function() {
