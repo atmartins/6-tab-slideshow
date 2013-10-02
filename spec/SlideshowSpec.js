@@ -139,7 +139,6 @@ describe("Slideshow", function() {
   });
 
 
-
 /*
   describe("add slide by passing an Object", function() {
     beforeEach(function() {

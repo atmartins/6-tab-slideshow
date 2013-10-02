@@ -1,0 +1,150 @@
+/**
+ * The 6 Tab Slideshow
+ * Main Stylesheet
+ *
+ * version 1.0
+ * 
+ * Author: Aaron Martins
+ *
+ * Requires jQuery 1.4.2+
+ *
+ * Full Instructions: http://aaronmartins.com/docs/6-tab-slideshow/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#noscript-notice {
+	position: absolute;
+	z-index: 1000;
+	background: #FFF;
+	width: 910px;
+	height: 20px;
+	padding: 5px;
+}
+#sts {}
+#sts-contents a img {
+	border: none !important;
+	outline: none !important;
+}
+
+#sts-contents {
+	padding: 7px 0;
+	border-top: 1px solid #CCC;
+	border-bottom: 1px solid #CCC;
+	width: 910px;
+	height:455px;
+	overflow: hidden;
+	margin: 20px auto 0 auto;
+	position:relative;
+}
+
+#sts-slideshow {
+	overflow: hidden;
+	width: 910px;
+	height: 455px;
+	position: relative;
+	display:none; /* will fade-in after via JS */
+	z-index:10; /* to fade-in over the pre-load image */
+}
+
+#sts-indices {
+	width: 170px;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+#sts-slides > div {
+	background-color: #FFFFFF;
+	width: 740px;
+	overflow: hidden;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+#sts-slides {
+	width: 740px;
+	position: absolute;
+	left: 167px;
+	top: 0;
+	z-index: 50;
+	border: none;
+	outline: none;
+}
+
+#sts-loader {margin: 150px 0 0 360px;}
+#sts-loader p {color:#999;font-weight:bold;font-size:20px;}
+#sts-loader img {margin:30px 0 0 50px;}
+ 
+/* ------------------- Stamps ------------------- */
+.sts-stamp {
+	position: absolute !important;
+	right: 0; /* Default - override below if necessary */
+	top: 0; /* Default - override below if necessary */
+	display: none; /* Do not change, fades in on document ready */
+}
+
+.sts-stamp-up, .de-stamp-over {
+	position: absolute !important;
+	right: 0; /* Do not change */
+	top: 0; /* Do not change */
+}
+
+.sts-stamp-over {
+	display:none; /* initially. jQuery fadeIn after page load */
+}
+
+/* ------------------- Indices ------------------- */
+/* This is what detects mouse hover, do not put images or styles here */
+.sts-index-up {
+	height: 75px;
+	width: 160px;
+	border-bottom: 1px solid #CCC;
+	background-color: #fff;
+	z-index: 70;
+	position: absolute;
+	cursor:pointer;
+}
+
+.sts-index-over {
+	background-color: #00472b;
+	width: 200px;
+	height: 77px;
+	z-index: 75;
+	position: absolute;
+	left: -220px;
+	top: -1px;
+}
+
+.sts-index {
+	position: absolute;
+	width: 200px;
+	height: 75px;
+}
+
+#sts-index-1{top:0;}
+#sts-index-2{top:76px;}
+#sts-index-3{top:152px;}
+#sts-index-4{top:228px;}
+#sts-index-5{top:304px;}
+#sts-index-6{top:380px;}
+#sts-pre-load-slide {
+	position:absolute;
+	left:167px;
+	z-index:1;
+}
+#sts-pre-load-msg {
+	margin:5px auto;
+	color:#979797;
+	font-weight:bold;
+}
+
+

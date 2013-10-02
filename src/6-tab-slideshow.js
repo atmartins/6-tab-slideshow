@@ -19,322 +19,349 @@
  * limitations under the License.
  */
 (function( window, $, undefined ) {
-"use strict";
+	"use strict";
 
-//We must have the jQuery
-if(! window.jQuery ){
-	throw new Error('Slideshow requires jQuery 1.4.2+');
-};
+	//We must have the jQuery
+	if(! window.jQuery ){ throw new Error('Slideshow requires jQuery 1.4.2+'); };
 
-//Add the slideshow object to the window (global) scope
-window.Slideshow = Slideshow;
+	//Add the slideshow object to the window (global) scope
+	window.Slideshow = Slideshow;
 
-//Helpful functions
-function isUndefined(value){return typeof value == 'undefined';}
+	//Helpful functions
+	function isUndefined(value){return typeof value === 'undefined';}
+	function isDefined(value){return typeof value !== 'undefined';}
+	function isString(value){return typeof value === 'string';}
+	function isNumber(value){return typeof value === 'number';}
+	function isObject(value){return value !== null && typeof value === 'object';}
+	function isArray(value) {return toString.apply(value) === '[object Array]';}
+	function isBoolean(value) {return typeof value === 'boolean';}
 
-function isDefined(value){return typeof value != 'undefined';}
-
-function isString(value){return typeof value == 'string';}
-
-function isNumber(value){return typeof value == 'number';}
-
-function isObject(value){return value != null && typeof value == 'object';}
-
-function isArray(value) {
-  return toString.apply(value) == '[object Array]';
-}
-
-function isBoolean(value) {
-  return typeof value == 'boolean';
-}
-
-function say(str){
-	if ( console && console.log ) {
-		console.log(str);
+	function say(str){
+		if ( console && console.log ) {
+			console.log(str);
+		}
 	}
-}
 
-// Slideshow object constructor
-function Slideshow(_htmlId){
-	this.htmlId = _htmlId; //the DOM element to add the slideshow to
-	this.$el = $('#' + _htmlId); //reference to jQuery object for slideshow DOM element
-}
+	// Slideshow object constructor
+	function Slideshow(_htmlId){
+		this.htmlId = _htmlId; //the DOM element to add the slideshow to
+		this.$el = $('#' + _htmlId); //reference to jQuery object for slideshow DOM element
+	}
 
-// Parameters for the slideshow object
-Slideshow.prototype.params = {
-	//after slideshow appears, set to true to prevent future calls to fadeIn.
-	fadedIn            : false,
-	//The speed various items fade in/out at. milliseconds
-	fadespeed          : 200,
-	//The index which is currently open
-	indexcurrentlyopen : 0,
-	//The slot of pixels to slide the index when animating
-	indexmovewidth     : 220,
-	//Leave at 6
-	slidecount         : 6,
-	//slot of pixels (used to set up track)
-	slideheight        : 455
-};
+	// Parameters for the slideshow object
+	Slideshow.prototype.params = {
+		version            : '1.0',
 
-/* Will contain slide objects (JSON) */
-Slideshow.prototype.slides = [];
+		//after slideshow appears, set to true to prevent future calls to fadeIn.
+		fadedIn            : false,
+		
+		//The speed various items fade in/out at. milliseconds
+		fadespeed          : 200,
+		
+		//The index which is currently open
+		indexcurrentlyopen : 0,
+		
+		//The slot of pixels to slide the index when animating
+		indexmovewidth     : 220,
+		
+		//For future flexibility
+		slidecount         : 6,
+		
+		//slot of pixels (used to set up track)
+		slideheight        : 455,
+		
+		//the first slide to load
+		slideToStartOn     : 1
+	};
 
-/* If any slides are requested by URL they're added to a queue and processed. */
-Slideshow.prototype.Ajax = {
+	/* Will contain slide objects (JSON) */
+	Slideshow.prototype.slides = [];
+
+	/**
+	 * Call this function after adding 6 or more slides
+	 * Defines several constants.
+	 * Also calls a few immediate functions (things needed before page load complete)
+	 * @param int [slide to start the slideshow on]
+	 */
+	Slideshow.prototype.begin = function(slideToStartOn) {
+		//doesn't return, loads ajax. 
+		//when last ajax is done, callback function passed to this.Ajax.processQueue() is called.
+
+		//optional, over-ride default slide to start on
+		isNumber(slideToStartOn) ? this.params.slideToStartOn = slideToStartOn : '';
+
+		//Attempt to process the Ajax queue. When done, run the callback
+		var waitForSlides = this.Ajax.processQueue(this, function(data, status, rootScope){
+			//var slideshow = scope;
+			//console.log(data);
+			//console.log(status);
+			//console.log(slideshow);
+			rootScope.launch(rootScope);
+		});
+
+		//if the Ajax queue was empty, our callback won't get called
+		//so we call it manually here
+		if(!waitForSlides){
+			this.launch(this.slides)
+		}
+	}
+
 	/* If any slides are requested by URL they're added to a queue and processed. */
-	queue : [],
-	
-	/* number of ajax slides which have finished loading. */
-	queueComplete : 0,
+	Slideshow.prototype.Ajax = {
+		/* If any slides are requested by URL they're added to a queue and processed. */
+		queue : [],
+		
+		/* number of ajax slides which have finished loading. */
+		queueComplete : 0,
 
-	/**
-	 * Add a url and slot number to the queue
-	 * @param string (the slide url)
-	 * @param integer (the slot to place it in the slideshow, 1-6)
-	 */
-	addToQueue : function(slideUrl, slot){
-		//Check if an object exists in the queue for this slot number
-		if(this.inQueue(slot)){
-			//overwrite current queue position. only one slide allowed per slot
-			this.queue[this.getIndexBySlot(slot)] = {
-				url:slideUrl,
-				slot:slot
-			};
-		} else {
-			//that slot is available; add to our queue
-			this.queue.push({
-				url:slideUrl,
-				slot:slot
-			});	
-		}
-	},
-
-	/**
-	 * Empty the contents of the Ajax queue.
-	 * Useful for unit testing
-	 */
-	emptyQueue : function(){
-		this.queue = [];
-	},
-
-	/**
-	 * Return the URL for a slideshow slot.
-	 * @param integer (slot, 1-6)
-	 * @return string (slide url)
-	 */
-	getUrlBySlot : function(slot){
-		var index = this.getIndexBySlot(slot);
-		if(index > -1 && index !== 'undefined'){ //0 is falsy but a valid array index
-			return this.queue[index].url;
-		}
-	},
-
-	/**
-	 * Return the queue index for a slideshow slot number, if exists in queue
-	 * @param integer (slot, 1-6)
-	 * @return integer (queue array index)
-	 */
-	getIndexBySlot : function(slot){
-		for(var i = 0; i < this.queue.length; i++){
-			if(this.queue[i].slot == slot){
-				return i;
+		/**
+		 * Add a url and slot number to the queue
+		 * @param string (the slide url)
+		 * @param integer (the slot to place it in the slideshow, 1-6)
+		 */
+		addToQueue : function(slideUrl, slot){
+			//Check if an object exists in the queue for this slot number
+			if(this.inQueue(slot)){
+				//overwrite current queue position. only one slide allowed per slot
+				this.queue[this.getIndexBySlot(slot)] = {
+					url:slideUrl,
+					slot:slot
+				};
+			} else {
+				//that slot is available; add to our queue
+				this.queue.push({
+					url:slideUrl,
+					slot:slot
+				});	
 			}
-		}
-	},
+		},
 
-	/**
-	 * Return true if the given slot is reserved in our queue for a slide
-	 */
-	inQueue : function(slot){
-		var isIn = false;
-		for(var i = 0; i < this.queue.length; i++){
-			if(this.queue[i].slot == slot){
-				isIn = true;
+		/**
+		 * Empty the contents of the Ajax queue.
+		 * Useful for unit testing
+		 */
+		emptyQueue : function(){
+			this.queue = [];
+		},
+
+		/**
+		 * Return the URL for a slideshow slot.
+		 * @param integer (slot, 1-6)
+		 * @return string (slide url)
+		 */
+		getUrlBySlot : function(slot){
+			var index = this.getIndexBySlot(slot);
+			if(index > -1 && index !== 'undefined'){ //0 is falsy but a valid array index
+				return this.queue[index].url;
 			}
-		}
-		return isIn;
-	},
+		},
 
-	/**
-	 * Load the slide objects via AJAX
-	 * When all are done, calls the callback and passes an array of slide objects to it
-	 * If the queue is empty, return false
-	 * If slides are being processed, return true
-	 */
-	processQueue : function(scope, callback){
-		if(this.queue.length < 1){
-			return false;
-		}
-		say('processing queue')
-		var slides = [];
-		for(var i = 0; i < this.queue.length; i++){
-			this.getSlide(this.queue[i].url, this.queue[i].slot, callback, scope);
-		}
-		return true;
-	},
-
-	/**
-	 * Get an individual slide via ajax
-	 * @param string slideUrl
-	 * @param int slotNum
-	 */
-	getSlide : function(slideUrl, slot, callback, scope){
-		$.ajax({
-			url: slideUrl,
-			cache: true,
-			type:'GET',
-			beforeSend: function( xhr ) {},
-			success: function(data, status){
-				//add the slide object to slideshow.slides
-				scope.addSlide(data, slot);
-				if(++scope.Ajax.queueComplete == scope.Ajax.queue.length ){
-					callback(data, status, scope);
+		/**
+		 * Return the queue index for a slideshow slot number, if exists in queue
+		 * @param integer (slot, 1-6)
+		 * @return integer (queue array index)
+		 */
+		getIndexBySlot : function(slot){
+			for(var i = 0; i < this.queue.length; i++){
+				if(this.queue[i].slot == slot){
+					return i;
 				}
 			}
-		}).fail( function(e){
-			throw new Error('failed to load slide');
-			throw new Error(e);
-		});
-	}
-};
+		},
 
-/***
- * Add a slide to the slideshow 
- *
- * You may overload a spot.
- * For instance you may add a slide to slot 4 twice when adding slides.
- * The last slide added to a spot is used.
- *
- * URL Method (string)
- * SAME DOMAIN ONLY
- * If passing a URL, the slide is added to a queue.
- * To add a slide via URL, usually you pass '/slides/slidename.json' as a parameter.
- *
- * Object Method (object)
- * Pass a javascript object literal, or a JSON object as a parameter
- *
- * Arrays
- * You may pass an array slides (using either method described above, URLs or Object literals)
- *    ! You must also pass an array of slot numbers, not an integer.
- *    Mixing array and non array arguments will result in an error.
- *
- * @param slide [mixed] ([string] URL, [object] JSON object, or [array] of URL or Objects)
- * @param int [slot 1-6] or array of ints (which correlate to the array of JSON objects)
- * @return undefined
- */
-Slideshow.prototype.addSlide = function(slide, slot){
-	
-	if( ! Array.isArray(slide)){
-		slide = [slide];
-	}
-	if( ! Array.isArray(slot)){
-		slot = [slot];
-	}
-
-	for(var i = 0; i < slide.length; i++){
-		if(typeof slide[i] === "string" && typeof slot[i] === "number"){
-			say("!A! Queueing URLs " + slide + " in slots " + slot);
-			this.Ajax.addToQueue(slide[i], slot[i]); //slide is actually a URL here
-		};
-		if(typeof slide[i] === "object" && typeof slot[i] === "number" && ! Array.isArray(slide[i]) ){
-			say('adding slide to slot ' + slot);
-			if(! this.validSlide(slide[i])){
-				throw new Error("Invalid slide. Attempting to add to slot " + slot[i]);
+		/**
+		 * Return true if the given slot is reserved in our queue for a slide
+		 */
+		inQueue : function(slot){
+			var isIn = false;
+			for(var i = 0; i < this.queue.length; i++){
+				if(this.queue[i].slot == slot){
+					isIn = true;
+				}
 			}
-			this.addSlideObject(slide[i], slot[i]);		
-		};
-	}
-}
+			return isIn;
+		},
 
-/**
- * Private
- * Add a slide to the stack for the real slot
- * Use Slideshow.addSlide() to add slides
- *
- * @param object [slide object]
- * @param int [slot 1-6]
- * @return undefined
- */
-Slideshow.prototype.addSlideObject = function(slide, slot){
-	//say('adding slide with alt text ' + slide.alt + ' at slot ' + slot);
-	this.slides[slot] = slide;
-}
+		/**
+		 * Load the slide objects via AJAX
+		 * When all are done, calls the callback and passes an array of slide objects to it
+		 * If the queue is empty, return false
+		 * If slides are being processed, return true
+		 */
+		processQueue : function(scope, callback){
+			if(this.queue.length < 1){
+				return false;
+			}
+			say('processing queue')
+			var slides = [];
+			for(var i = 0; i < this.queue.length; i++){
+				this.getSlide(this.queue[i].url, this.queue[i].slot, callback, scope);
+			}
+			return true;
+		},
 
-/**
- * Returns a slide for the real slot
- * @param int [slot 1-6]
- * @return object [slide object]
- */
-Slideshow.prototype.getSlide = function(slot){
-	return this.slides[slot];
-}
+		/**
+		 * Get an individual slide via ajax
+		 * @param string slideUrl
+		 * @param int slotNum
+		 */
+		getSlide : function(slideUrl, slot, callback, scope){
+			$.ajax({
+				url: slideUrl,
+				cache: true,
+				type:'GET',
+				beforeSend: function( xhr ) {},
+				success: function(data, status){
+					//add the slide object to slideshow.slides
+					scope.addSlide(data, slot);
+					if(++scope.Ajax.queueComplete == scope.Ajax.queue.length ){
+						callback(data, status, scope);
+					}
+				}
+			}).fail( function(e){
+				throw new Error('failed to load slide');
+				throw new Error(e);
+			});
+		}
+	};
 
-/**
- * Checks if a given object is a valid slideshow slide
- * @param object
- * @return boolean [true if slide is valid]
- */
-Slideshow.prototype.validSlide = function(slide){
-	return (
-		typeof slide === "object"
-		&& typeof slide.alt           === "string"
-		&& typeof slide.indexup       === "string"
-		&& typeof slide.indexover     === "string"
-		&& typeof slide.slider        === "string"
-		&& typeof slide.stampup       === "string"
-		&& typeof slide.stampover     === "string"
-		&& typeof slide.product_link  === "string"
-		&& typeof slide.stamp_top_css === "string"
-	);
-}
 
-/**
- * Checks if we have the specified number of valid slides
- * (default is 6, see this.params.slidecount)
- * @param array of slide objects
- * @return boolean [true if all slides are valid]
- */
-Slideshow.prototype.allSlidesValid = function(slides){
-	for(var i = 1; i <= this.params.slidecount; i++){
-		if(!this.validSlide(slides[i])){
-			return false;
+	/***
+	 * Add a slide to the slideshow 
+	 *
+	 * You may overload a spot.
+	 * For instance you may add a slide to slot 4 twice when adding slides.
+	 * The last slide added to a spot is used.
+	 *
+	 * URL Method (string)
+	 * SAME DOMAIN ONLY
+	 * If passing a URL, the slide is added to a queue.
+	 * To add a slide via URL, usually you pass '/slides/slidename.json' as a parameter.
+	 *
+	 * Object Method (object)
+	 * Pass a javascript object literal, or a JSON object as a parameter
+	 *
+	 * Arrays
+	 * You may pass an array slides (using either method described above, URLs or Object literals)
+	 *    ! You must also pass an array of slot numbers, not an integer.
+	 *    Mixing array and non array arguments will result in an error.
+	 *
+	 * @param slide [mixed] ([string] URL, [object] JSON object, or [array] of URL or Objects)
+	 * @param int [slot 1-6] or array of ints (which correlate to the array of JSON objects)
+	 * @return undefined
+	 */
+	Slideshow.prototype.addSlide = function(slide, slot){
+		//if not array, convert to array with single value for consistent handling
+		if( ! isArray(slide)){ slide = [slide]; };
+		if( ! isArray(slot)){ slot = [slot]; };
+
+		//cycle through "slide" objects, and take appropriate action
+		for(var i = 0; i < slide.length; i++){
+			//add to ajax queue
+			if(isString(slide[i]) && isNumber(slot[i])){
+				//say("!A! Queueing URLs " + slide + " in slots " + slot);
+				this.Ajax.addToQueue(slide[i], slot[i]); //'slide' is actually a string here
+			};
+			//add directly to slideshow.slides
+			if(isObject(slide[i]) && isNumber(slot[i]) && ! isArray(slide[i]) ){
+				//say('adding slide to slot ' + slot);
+				/*if(! this.validSlide(slide[i])){
+					throw new Error("Invalid slide. Attempting to add to slot " + slot[i]);
+				}*/
+				this.addSlideObject(slide[i], slot[i]);		
+			};
 		}
 	}
-	return true;
-}
 
-/**
- * Defines several constants.
- * Also calls a few immediate functions (things needed before page load complete)
- * @param int [slide to start the slideshow on]
- */
-Slideshow.prototype.begin = function(_slidetostarton) {
-	this.params.trackheight = this.params.slideheight * this.params.slidecount;
-	this.params.slidetostarton = _slidetostarton || 1; //default 1
-	var waitForSlides = this.Ajax.processQueue(this, function(data, status, scope){
-		//var slideshow = scope;
-		//console.log(data);
-		//console.log(status);
-		//console.log(slideshow);
-		scope.launch(scope.slides);
-	});
-	if(!waitForSlides){
-		this.launch(this.slides)
+
+	/**
+	 * Add a slide to the stack for the real slot
+	 * Use Slideshow.addSlide() to add slides
+	 *
+	 * @param object [slide object]
+	 * @param int [slot 1-6]
+	 * @return undefined
+	 */
+	Slideshow.prototype.addSlideObject = function(slide, slot){
+		//say('adding slide with alt text ' + slide.alt + ' at slot ' + slot);
+		this.slides[slot] = slide;
 	}
-	//doesn't return, loads ajax. 
-	//when last ajax is done, callback function passed to this.Ajax.processQueue() is called.
-}
 
-Slideshow.prototype.launch = function(slides, loadFirst){
-	//loadFirst == slide to load first (1-6)
-	say('slides should be resolved, launching app');
-	say(slides);
-	
-	if(this.allSlidesValid(slides)){
-		say('all slides are valid');
-	} else {
-		throw new Error('Slideshow attempting to launch with invalid list of slides: ' + slides);
-	};
-}
+
+	/**
+	 * Returns a slide for the real slot
+	 * @param int [slot 1-6]
+	 * @return object [slide object]
+	 */
+	Slideshow.prototype.getSlide = function(slot){
+		return this.slides[slot];
+	}
+
+
+	/**
+	 * Checks if a given object is a valid slideshow slide
+	 * @param object
+	 * @return boolean [true if slide is valid]
+	 */
+	Slideshow.prototype.validSlide = function(slide){
+		return (
+			isObject(slide)
+			&& isString(slide.alt)
+			&& typeof slide.indexup       === "string"
+			&& typeof slide.indexover     === "string"
+			&& typeof slide.slider        === "string"
+			&& typeof slide.stampup       === "string"
+			&& typeof slide.stampover     === "string"
+			&& typeof slide.product_link  === "string"
+			&& typeof slide.stamp_top_css === "string"
+		);
+	}
+
+
+	/**
+	 * Checks if we have the specified number of valid slides
+	 * (default is 6, see this.params.slidecount)
+	 * @param array of slide objects
+	 * @return boolean [true if all slides are valid]
+	 */
+	Slideshow.prototype.allSlidesValid = function(slides){
+		for(var i = 1; i <= this.params.slidecount; i++){
+			if(!this.validSlide(slides[i])){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * The internal method to launch the actual slideshow.
+	 * Do not call this from your web page.
+	 */
+	Slideshow.prototype.launch = function(rootScope){
+		
+		var slideshow = rootScope;
+		//loadFirst == slide to load first (1-6)
+		say('slides should be resolved, launching app');
+		//say(slideshow.slides);
+		say(this.slides);
+		say('^slides');
+		if(slideshow.allSlidesValid(slideshow.slides)){
+			//say('all slides are valid, launching');
+
+			//calculate track height
+			slideshow.params.trackheight = slideshow.params.slideheight * slideshow.params.slidecount;
+
+			slideshow.buildHtml();
+		} else {	
+			throw new Error('Slideshow attempting to launch with invalid list of slides: ' + slideshow.slides);
+		};
+	}
+
+	/* If any slides are requested by URL they're added to a queue and processed. */
+	Slideshow.prototype.buildHtml = function(){
+		say('building html');
+		//say(this.slides);
+	}
+
 
 })( window, jQuery );
