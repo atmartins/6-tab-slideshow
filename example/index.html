@@ -22,9 +22,10 @@
         
         <script src="../src/6-tab-slideshow.js"></script>
         <script>
+            //create a new slideshow
             var slideshow = new Slideshow('#myslideshow');
-           // var slideshow.startOn = 2;
 
+            //add six or more slides using your desired method (or combination of methods)
             slideshow.addSlide({
                 "alt" : "rainforest slide dkzj3", 
                 "indexup" : "/images/rainforest_index-up.png", 
@@ -49,6 +50,8 @@
                 "product_link" : "http://aaronmartins.com",
                 "stamp_top_css" : "260px"
             },6);
+
+            //demonstrate over-riding a slot
             slideshow.addSlide({
                 "alt" : "rainforest slide rrrr", 
                 "indexup" : "/images/rainforest_index-up.png", 
@@ -59,6 +62,8 @@
                 "product_link" : "http://aaronmartins.com",
                 "stamp_top_css" : "260px"
             },6);
+
+            //begin the slideshow on slide 1
             slideshow.begin(1);
         </script>
     </body>
