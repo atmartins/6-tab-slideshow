@@ -362,6 +362,11 @@
 		};
 	}
 
+	Slideshow.prototype.iterateSlides = function(callback){
+		for(var i = 1; i <= this.params.slidecount; i++){
+			callback(this.slides[i]);
+		}
+	}
 
 	/**
 	 * Build slideshow HTML and components
@@ -369,9 +374,33 @@
 	Slideshow.prototype.buildHtml = function(){
 		say('building html');
 		say(this.slides);
-		return 'best slideshow ever';
+
+		var loop = '';
+		//for(var i = 1; i <= this.params.slidecount; )
+		//var s = _m(_m('index up', 'div', '', 'index-up'), 'div', 'myid', 'myclass');
+		var s = this.iterateSlides(function(slide){
+			return slide.alt;
+		});
+		return s;
 	}
 
+	/**
+	 * @description Wraps content in the appropriate markup with the tag specified
+	 * Do not use for self-closing tags, like img, br or hr
+	 *
+	 * @param string {contents} the contents of the div
+	 * @param string {tag} the tag, such as 'div'
+	 * @param string {_id} the HTML id
+	 * @param string {_class} the HTML class
+	 * @param string {_str} an arbitrary string to include in the tag
+	 * @returns string {html markup}
+	 */
+	function _m(contents, tag, _id, _class, _str){
+		_id ? _id = ' id="'+_id+'"' : _id='';
+		_class ? _class = ' class="'+_class+'"' : _class='';
+		_str ? _str = ' '+_str : _str='';
+		return '<'+tag+_id+_class+_str+'>'+contents+'</'+tag+'>';
+	}
 
 
 })( window, jQuery );
