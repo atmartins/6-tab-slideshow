@@ -357,16 +357,13 @@
 			
 			//TODO this.attachHandlers();
 			//TODO this.fadeIn();
+			$('#sts-slideshow').fadeIn('fast'); //hack TODO remove
+			$('.sts-stamp').fadeIn('fast'); //hack TODO remove
 		} else {	
 			throw new Error('Slideshow attempting to launch with invalid list of slides: ' + this.slides);
 		};
 	}
 
-	Slideshow.prototype.iterateSlides = function(callback){
-		for(var i = 1; i <= this.params.slidecount; i++){
-			callback(this.slides[i]);
-		}
-	}
 
 	/**
 	 * Build slideshow HTML and components
@@ -375,16 +372,45 @@
 		say('building html');
 		say(this.slides);
 
-		var loop = '';
-		//for(var i = 1; i <= this.params.slidecount; )
-		//var s = _m(_m('index up', 'div', '', 'index-up'), 'div', 'myid', 'myclass');
-		var s = this.iterateSlides(function(slide){
-			return slide.alt;
-		});
-		return s;
+		var html = '<div id="sts-slideshow">';
+			html += '<div id="sts-indices">';
+			for(var i = 1; i <= this.params.slidecount; i++){
+				html += '<div id="sts-index-'+i+'" class="sts-index">'
+					html += _hm(_himg(this.slides[i].indexup), 'div', '', 'sts-index-up');
+					s += '<a href="' + this.slides[i].product_link + '">';
+						html += _hm(_himg(this.slides[i].indexover), 'div', '', 'sts-index-over');
+					s += '</a>';
+				html += '</div>';
+			}
+			html += '</div><!-- /#sts-indices -->';
+		
+			html += '<div id="sts-slides">';
+			for(var i = 1; i <= this.params.slidecount; i++){
+				var s = '<div id="sts-slider-'+i+'" class="sts-slider">';
+					s += '<a href="' + this.slides[i].product_link + '">';
+						s += _himg(this.slides[i].slider);
+					s += '</a>';
+				s += '</div><!-- /#sts-slider-'+i+' -->';
+				s += '<div class="sts-stamp" style="top:'+this.slides[i].stamp_top_css+'">';
+					s += '<div class="sts-stamp-up">';
+						s += _himg(this.slides[i].stampup);
+					s += '</div>';
+					s += '<div class="sts-stamp-over">';
+						s += '<a href="' + this.slides[i].product_link + '">';
+							s += _himg(this.slides[i].stampover);
+						s += '</a>';
+					s += '</div>';
+				s += '</div><!-- /.sts-stamp -->';
+					
+				html += _hm(s, 'div', '', 'sts-slider');
+			}
+			html += '</div><!-- /#sts-slides -->';
+		html += '</div><!-- /#sts-slideshow -->';
+		return html;
 	}
 
 	/**
+	 * _hm (html markup. two-part tags)
 	 * @description Wraps content in the appropriate markup with the tag specified
 	 * Do not use for self-closing tags, like img, br or hr
 	 *
@@ -395,12 +421,15 @@
 	 * @param string {_str} an arbitrary string to include in the tag
 	 * @returns string {html markup}
 	 */
-	function _m(contents, tag, _id, _class, _str){
+	function _hm(contents, tag, _id, _class, _str){
 		_id ? _id = ' id="'+_id+'"' : _id='';
 		_class ? _class = ' class="'+_class+'"' : _class='';
 		_str ? _str = ' '+_str : _str='';
 		return '<'+tag+_id+_class+_str+'>'+contents+'</'+tag+'>';
 	}
 
-
+	function _himg(src, _str){
+		_str ? _str = ' '+_str : _str='';
+		return '<img src="'+src+'"'+_str+' />';
+	}
 })( window, jQuery );

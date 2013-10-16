@@ -23,14 +23,22 @@
 
 /* Update me */
 #myslideshow {
-	width: 910px;
-	height:455px;
+	padding: 7px 0;
 	border-top: 1px solid #CCC;
 	border-bottom: 1px solid #CCC;
-	margin: 20px auto 0 auto;
+	width: 910px;
+	height:455px;
 	overflow: hidden;
-	padding: 7px 0;
+	margin: 20px auto 0 auto;
 	position:relative;
+}
+#sts-slideshow {
+	overflow: hidden;
+	width: 910px;
+	height: 455px;
+	position: relative;
+	display:none; /* will fade-in after via JS */
+	z-index:10; /* to fade-in over the pre-load image */
 }
 
 #sts {} /* six tab slideshow */
