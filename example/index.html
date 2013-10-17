@@ -9,6 +9,8 @@
         <title>6 Tab Slideshow Example | AaronMartins.com</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
+        
+        <!-- 6-tab-slideshow requires jQuery 1.8.2 or higher -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 
         <!-- 6-tab-slideshow: -->
@@ -16,14 +18,16 @@
     </head>
     <body>
         
-        <!-- 6-tab-slideshow: -->
+        <!-- 6-tab-slideshow will be built here -->
         <div id="myslideshow">
             <noscript><div id="noscript-notice">Please enable Javascript for the full experience.</div></noscript>
         </div>
-        <!-- <script src="../lib/easing.js"></script> -->
-        <script src="../lib/transit.js"></script>
+
+        <!-- <script src="../lib/easing.js"></script> 
+        <script src="../lib/transit.js"></script>-->
+
         <script src="../src/6-tab-slideshow.js"></script>
-        <script>
+        <script type="text/javascript">
             //create a new slideshow
             var slideshow = new Slideshow('#myslideshow');
 
@@ -64,8 +68,8 @@
                 "product_link" : "http://aaronmartins.com",
                 "stamp_top_css" : "260px"
             },6);
-            //slideshow.addSlide("../example/slides/ocean.json",6);
-            //begin the slideshow on slide 1
+            
+            //begin the slideshow on this slide
             slideshow.begin(5);
         </script>
     </body>
