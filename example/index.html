@@ -26,7 +26,7 @@
         <!-- <script src="../lib/easing.js"></script> 
         <script src="../lib/transit.js"></script>-->
 
-        <script src="../src/6-tab-slideshow.js"></script>
+        <script src="../src/6-tab-slideshow.min.js"></script>
         <script type="text/javascript">
             //create a new slideshow
             var slideshow = new Slideshow('#myslideshow');
@@ -40,12 +40,17 @@
                 "stampup" : "images/example/example_stamp_up.png",
                 "stampover" : "images/example/example_stamp_over.png",
                 "product_link" : "http://aaronmartins.com",
-                "stamp_top_css" : "260px"
+                "stamp_top_css" : 100
             },1);
-            slideshow.addSlide(["../example/slides/forest.json","../example/slides/ocean.json"],
-            [2,3]);
-            slideshow.addSlide(["../example/slides/river.json","../example/slides/ice.json"],
-            [4,5]);
+            
+            slideshow.addSlide(
+                ["../example/slides/forest.json","../example/slides/ocean.json"],
+                [2,3]
+            );
+            
+            slideshow.addSlide("../example/slides/river.json", 4)
+            slideshow.addSlide("../example/slides/ice.json", 5)
+            
             slideshow.addSlide({
                 "alt" : "rainforest slide dkzj3", 
                 "indexup" : "images/example/example_index_up.png", 
@@ -54,7 +59,7 @@
                 "stampup" : "images/example/example_stamp_up.png",
                 "stampover" : "images/example/example_stamp_over.png",
                 "product_link" : "http://aaronmartins.com",
-                "stamp_top_css" : "260px"
+                "stamp_top_css" : 260
             },6);
 
             //demonstrate over-riding a slot
@@ -66,7 +71,7 @@
                 "stampup" : "images/example/example_stamp_up.png",
                 "stampover" : "images/example/example_stamp_over.png",
                 "product_link" : "http://aaronmartins.com",
-                "stamp_top_css" : "260px"
+                "stamp_top_css" : 230
             },6);
             
             //begin the slideshow on this slide

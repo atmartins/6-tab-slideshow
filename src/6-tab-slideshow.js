@@ -375,7 +375,7 @@
 			&& isString(slide.stampup)
 			&& isString(slide.stampover)
 			&& isString(slide.product_link)
-			&& isString(slide.stamp_top_css)
+			&& isNumber(slide.stamp_top_css)
 		);
 	}
 
@@ -552,7 +552,7 @@
 						s += _himg(this.slides[i].slider);
 					s += '</a>';
 				
-				s += '<div id="sts-stamp-'+i+'" class="sts-stamp" style="top:'+this.slides[i].stamp_top_css+'">';
+				s += '<div id="sts-stamp-'+i+'" class="sts-stamp" style="top:'+this.slides[i].stamp_top_css+'px">';
 					s += '<div id="sts-stamp-up-'+i+'" class="sts-stamp-up">';
 						s += _himg(this.slides[i].stampup);
 					s += '</div>';
