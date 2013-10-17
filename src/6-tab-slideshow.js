@@ -8,6 +8,7 @@
  *
  * Full Instructions: http://aaronmartins.com/docs/6-tab-slideshow/
  *
+ * @license
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,39 +23,21 @@
 	"use strict";
 
 	//We must have the jQuery
-	if(! window.jQuery ){ throw new Error('Slideshow requires jQuery 1.4.2+'); };
+	if(! window.jQuery ){ throw new Error('Slideshow requires jQuery 1.8.2+'); };
 
 	//Add the slideshow object to the window (global) scope
 	window.Slideshow = Slideshow;
 
-	//Helpful functions
+	//Helpful type checking functions
 	function isUndefined(value){return typeof value === 'undefined';}
 	function isDefined(value){return typeof value !== 'undefined';}
 	function isString(value){return typeof value === 'string';}
 	function isNumber(value){return typeof value === 'number';}
 	function isObject(value){return value !== null && typeof value === 'object';}
-	function isArray(value) {return Object.prototype.toString.call(value) === '[object Array]';}
-	function isBoolean(value) {return typeof value === 'boolean';}
+	function isArray(value){return Object.prototype.toString.call(value) === '[object Array]';}
+	function isBoolean(value){return typeof value === 'boolean';}
 
-	//Avoid IE console
-	function say(str){
-		if ( console && console.log ) {
-			console.log(str);
-		}
-	}
-
-	// jQuery.support.transition
-	// to verify that CSS3 transition is supported (or any of its browser-specific implementations)
-	$.support.transition = (function(){ 
-	    var thisBody = document.body || document.documentElement,
-	    thisStyle = thisBody.style,
-	    support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
-	    return support; 
-	})();
-	
-	
-	//Add our one easing method. This is used when CSS transitions aren't available
-	//License is included in lib/easing.js
+	// Add our one easing method to jQuery
 	$.extend($.easing, {
 	    easeOutQuart: function (x, t, b, c, d) {
 	        return -c * ((t=t/d-1)*t*t*t - 1) + b;
@@ -62,8 +45,60 @@
 	});
 
 	/**
-	 * Slideshow object constructor
-	 * When creating a slideshow instance, pass the html ID
+	 * @param {string} String to log
+	 * @return {sideeffect} Logs string to console, avoiding IE errors
+	 */
+	function say(str){
+		if ( window.console && window.console.log ) {
+			console.log(str);
+		}
+	}
+
+	/**
+	 * @description Wraps content in the appropriate markup with the tag specified
+	 *  Do not use for self-closing tags, like img, br or hr
+	 *
+	 * @param {string} The contents of the div
+	 * @param {string} The tag, such as 'div'
+	 * @param {string} The HTML id
+	 * @param {string} The HTML class
+	 * @param {string} An arbitrary string to include in the tag (optional)
+	 * @return {string} HTML markup
+	 */
+	function _hm(contents, tag, _id, _class, _str){
+		_id ? _id = ' id="'+_id+'"' : _id='';
+		_class ? _class = ' class="'+_class+'"' : _class='';
+		_str ? _str = ' '+_str : _str='';
+		return '<'+tag+_id+_class+_str+'>'+contents+'</'+tag+'>';
+	}
+
+	/**
+	 * @param {string} The image src
+	 * @param {string} An arbitrary string to include in the tag
+	 * @return {string} HTML image element
+	 */
+	function _himg(src, _str){
+		_str ? _str = ' '+_str : _str='';
+		return '<img src="'+src+'"'+_str+' />';
+	}
+
+	/**
+	 * @type {boolean}
+	 * @description jQuery.support.transition to verify that CSS3 transition 
+	 *  is supported (or any of its browser-specific implementations)
+	 */
+	$.support.transition = (function(){ 
+	    var thisBody = document.body || document.documentElement,
+	    thisStyle = thisBody.style,
+	    support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
+	    return support; 
+	})();
+
+
+
+	/**
+	 * @description Slideshow object constructor
+	 * @param {string} The ID of the HTML element to place the slideshow
 	 */
 	function Slideshow(_htmlId){
 		_htmlId = _htmlId.replace("#", ""); //remove # if present
@@ -74,40 +109,45 @@
 		}; 
 	}
 
-	// Parameters for the slideshow object
+	/**
+	 * @type {Object} Parameters for the slideshow object
+	 */
 	Slideshow.prototype.params = {
+		//@type {string} version number
 		version            : '1.0',
 
-		//after slideshow appears, set to true to prevent future calls to fadeIn.
+		//@type {boolean} after slideshow appears, set to true to prevent future calls to fadeIn.
 		fadedIn            : false,
 		
-		//The speed various items fade in/out at. milliseconds
+		//@type {number} The speed various items fade in/out at. milliseconds
 		fadespeed          : 200,
 		
-		//The index which is currently open
+		//@type {number} The index which is currently open
 		indexcurrentlyopen : 0,
 		
-		//The slot of pixels to slide the index when animating
+		//@type {number} The slot of pixels to slide the index when animating
 		indexmovewidth     : 220,
 		
-		//For future flexibility
+		//@type {number} For future flexibility
 		slidecount         : 6,
 		
-		//slot of pixels (used to set up track)
+		//@type {number} slot of pixels (used to set up track)
 		slideheight        : 455,
 		
-		//the first slide to load
+		//@type {number} the first slide to load
 		slideToStartOn     : 1
 	};
 
-	/* Will contain slide objects (JSON) */
+	/**
+	 * @type {Array} Will contain slide objects (JSON)
+	 */
 	Slideshow.prototype.slides = [];
 
 	/**
-	 * Call this function after adding 6 or more slides
-	 * Defines several constants.
-	 * Also calls a few immediate functions (things needed before page load complete)
-	 * @param int [slide to start the slideshow on]
+	 * @description Call this function after adding 6 or more slides
+	 *  Defines several constants.
+	 *  Also calls a few immediate functions (things needed before page load complete)
+	 * @param {int} slide to start the slideshow on
 	 */
 	Slideshow.prototype.begin = function(slideToStartOn) {
 		//doesn't return, loads ajax. 
@@ -130,18 +170,21 @@
 		}
 	}
 
-	/* If any slides are requested by URL they're added to a queue and processed. */
+	/**
+	 * @type {Object}
+	 * @description If any slides are requested by URL they're added to a queue and processed.
+	 */
 	Slideshow.prototype.Ajax = {
-		/* If any slides are requested by URL they're added to a queue and processed. */
+		// @type {Array} If any slides are requested by URL they're added to a queue and processed.
 		queue : [],
 		
-		/* number of ajax slides which have finished loading. */
+		// @type {number} Number of ajax slides which have finished loading.
 		queueComplete : 0,
 
 		/**
-		 * Add a url and slot number to the queue
-		 * @param string (the slide url)
-		 * @param integer (the slot to place it in the slideshow, 1-6)
+		 * @description Add a url and slot number to the queue
+		 * @param {string} The slide url
+		 * @param {integer} Slot number between 1 and params.slidecount
 		 */
 		addToQueue : function(slideUrl, slot){
 			//Check if an object exists in the queue for this slot number
@@ -161,8 +204,8 @@
 		},
 
 		/**
-		 * Empty the contents of the Ajax queue.
-		 * Useful for unit testing
+		 * Empty the contents of the Ajax queue. Useful for unit testing
+		 * @return {undefined}
 		 */
 		emptyQueue : function(){
 			this.queue = [];
@@ -170,8 +213,8 @@
 
 		/**
 		 * Return the URL for a slideshow slot.
-		 * @param integer (slot, 1-6)
-		 * @return string (slide url)
+		 * @param {number} Slot number between 1 and params.slidecount
+		 * @return {string} Slide url
 		 */
 		getUrlBySlot : function(slot){
 			var index = this.getIndexBySlot(slot);
@@ -181,9 +224,9 @@
 		},
 
 		/**
-		 * Return the queue index for a slideshow slot number, if exists in queue
-		 * @param integer (slot, 1-6)
-		 * @return integer (queue array index)
+		 * @description Return the queue index for a slideshow slot number, if exists in queue
+		 * @param {number} Slot number between 1 and params.slidecount
+		 * @return {number} Queue array index
 		 */
 		getIndexBySlot : function(slot){
 			for(var i = 0; i < this.queue.length; i++){
@@ -194,7 +237,8 @@
 		},
 
 		/**
-		 * Return true if the given slot is reserved in our queue for a slide
+		 * @param {number} Slot number between 1 and params.slidecount
+		 * @return {boolean} true if the given slot is reserved in our queue for a slide
 		 */
 		inQueue : function(slot){
 			var isIn = false;
@@ -207,10 +251,11 @@
 		},
 
 		/**
-		 * Load the slide objects via AJAX
-		 * When all are done, calls the callback and passes an array of slide objects to it
-		 * If the queue is empty, return false
-		 * If slides are being processed, return true
+		 * @description Load the slide objects via AJAX
+		 *  When all are done, calls the callback and passes an array of slide objects to it
+		 * @param {Object} Scope of the slideshow
+		 * @param {Function} The callback function to call when queue is processed
+		 * @return {boolean} false if the queue is empty, true if slides are being processed
 		 */
 		processQueue : function(scope, callback){
 			if(this.queue.length < 1){
@@ -225,9 +270,11 @@
 		},
 
 		/**
-		 * Get an individual slide via ajax
-		 * @param string slideUrl
-		 * @param int slotNum
+		 * @description Get an individual slide via ajax
+		 * @param {string} The json slide URL
+		 * @param {number} Slot number between 1 and params.slidecount
+		 * @param {Function} The callback function to call when queue is processed
+		 * @param {Object} Scope of the slideshow
 		 */
 		getSlide : function(slideUrl, slot, callback, scope){
 			$.ajax({
@@ -249,7 +296,6 @@
 		}
 	};
 
-
 	/**
 	 * Add a slide to the slideshow 
 	 *
@@ -270,8 +316,8 @@
 	 *    ! You must also pass an array of slot numbers, not an integer.
 	 *    Mixing array and non array arguments will result in an error.
 	 *
-	 * @param slide [mixed] ([string] URL, [object] JSON object, or [array] of URL or Objects)
-	 * @param int [slot 1-6] or array of ints (which correlate to the array of JSON objects)
+	 * @param {string|Object|array} string: URL, Object: JSON object literal, or Array: of URL or Objects
+	 * @param {number|array} slot number or array of slot numbers (which correlate to the array of JSON objects)
 	 * @return undefined
 	 */
 	Slideshow.prototype.addSlide = function(slide, slot){
@@ -297,20 +343,17 @@
 		}
 	}
 
-
 	/**
-	 * Add a slide to the stack for the real slot
+	 * @description Add a slide to the stack for the real slot
 	 * Use Slideshow.addSlide() to add slides
 	 *
-	 * @param object [slide object]
-	 * @param int [slot 1-6]
+	 * @param {Object} The slide object literal
+	 * @param {number} Slot number between 1 and params.slidecount
 	 * @return undefined
 	 */
 	Slideshow.prototype.addSlideObject = function(slide, slot){
-		//say('adding slide with alt text ' + slide.alt + ' at slot ' + slot);
 		this.slides[slot] = slide;
 	}
-
 
 	/**
 	 * Returns a slide for the real slot
@@ -320,7 +363,6 @@
 	Slideshow.prototype.getSlide = function(slot){
 		return this.slides[slot];
 	}
-
 
 	/**
 	 * Checks if a given object is a valid slideshow slide
@@ -340,7 +382,6 @@
 			&& isString(slide.stamp_top_css)
 		);
 	}
-
 
 	/**
 	 * Checks if we have the specified number of valid slides
@@ -375,11 +416,6 @@
 			this.goToSlide(this.params.slideToStartOn);
 			$('#sts-slideshow').fadeIn('fast'); //hack TODO remove
 			$('.sts-stamp').fadeIn('fast'); //hack TODO remove
-			/*this.goToSlide(6);
-			var _this = this;
-			setTimeout(function(){
-				_this.goToSlide(4);
-			},2000)*/
 		} else {	
 			throw new Error('Slideshow attempting to launch with invalid list of slides: ' + this.slides);
 		};
@@ -393,9 +429,7 @@
 		$('#sts-slides').css('height', this.params.slideheight * this.params.slidecount + 'px');
 		for(var i = 1; i <= this.params.slidecount; i++){
 			$('#sts-slider-'+i).css('top', (this.params.slideheight * i) + 'px');
-		}
-		
-		
+		}		
 	}
 
 	/**
@@ -454,6 +488,7 @@
 		this.indexcurrentlyopen = number;
 	}
 
+
 	/**
 	 * Animate the track to show the appropriate slide
 	 * @param number The slide number. 1-6
@@ -476,9 +511,12 @@
 		}
 	}
 
-	//Animate and index open or closed
-	//$obj jQuery object reference
-	//state string 'open' or 'close'
+
+	/**
+	 * Animate and index open or closed
+	 * @param {Object} - $obj jQuery object reference
+	 * @param {string} - state 'open' or 'close'
+	 */
 	Slideshow.prototype.animateIndex = function($obj, state){
 		var pos; //pixel value to move to
 		state == 'open' ? pos = 0 : pos = -220; //depends on open or close
@@ -502,8 +540,8 @@
 				easing: "easeOutQuart"
 			});		
 		}
-		
 	}
+
 
 	/**
 	 * Build slideshow HTML and components
@@ -549,27 +587,6 @@
 		return html;
 	}
 
-	/**
-	 * _hm (html markup. two-part tags)
-	 * @description Wraps content in the appropriate markup with the tag specified
-	 * Do not use for self-closing tags, like img, br or hr
-	 *
-	 * @param string {contents} the contents of the div
-	 * @param string {tag} the tag, such as 'div'
-	 * @param string {_id} the HTML id
-	 * @param string {_class} the HTML class
-	 * @param string {_str} an arbitrary string to include in the tag
-	 * @returns string {html markup}
-	 */
-	function _hm(contents, tag, _id, _class, _str){
-		_id ? _id = ' id="'+_id+'"' : _id='';
-		_class ? _class = ' class="'+_class+'"' : _class='';
-		_str ? _str = ' '+_str : _str='';
-		return '<'+tag+_id+_class+_str+'>'+contents+'</'+tag+'>';
-	}
 
-	function _himg(src, _str){
-		_str ? _str = ' '+_str : _str='';
-		return '<img src="'+src+'"'+_str+' />';
-	}
+
 })( window, jQuery );
