@@ -147,7 +147,7 @@
 	 * @description Call this function after adding 6 or more slides
 	 *  Defines several constants.
 	 *  Also calls a few immediate functions (things needed before page load complete)
-	 * @param {int} slide to start the slideshow on
+	 * @param {integer} Slot number between 1 and params.slidecount to start the slideshow on
 	 */
 	Slideshow.prototype.begin = function(slideToStartOn) {
 		//doesn't return, loads ajax. 
@@ -204,7 +204,7 @@
 		},
 
 		/**
-		 * Empty the contents of the Ajax queue. Useful for unit testing
+		 * @description Empty the contents of the Ajax queue. Useful for unit testing
 		 * @return {undefined}
 		 */
 		emptyQueue : function(){
@@ -212,7 +212,7 @@
 		},
 
 		/**
-		 * Return the URL for a slideshow slot.
+		 * @description Return the URL for a slideshow slot.
 		 * @param {number} Slot number between 1 and params.slidecount
 		 * @return {string} Slide url
 		 */
@@ -297,22 +297,22 @@
 	};
 
 	/**
-	 * Add a slide to the slideshow 
+	 * @description Add a slide to the slideshow 
 	 *
-	 * You may overload a spot.
-	 * For instance you may add a slide to slot 4 twice when adding slides.
-	 * The last slide added to a spot is used.
+	 *  You may overload a spot.
+	 *  For instance you may add a slide to slot 4 twice when adding slides.
+	 *  The last slide added to a spot is used.
 	 *
-	 * URL Method (string)
-	 * SAME DOMAIN ONLY
-	 * If passing a URL, the slide is added to a queue.
-	 * To add a slide via URL, usually you pass '/slides/slidename.json' as a parameter.
+	 *  URL Method (string)
+	 *  SAME DOMAIN ONLY
+	 *  If passing a URL, the slide is added to a queue.
+	 *  To add a slide via URL, usually you pass '/slides/slidename.json' as a parameter.
 	 *
-	 * Object Method (object)
-	 * Pass a javascript object literal, or a JSON object as a parameter
+	 *  Object Method (object)
+	 *  Pass a javascript object literal, or a JSON object as a parameter
 	 *
-	 * Arrays
-	 * You may pass an array slides (using either method described above, URLs or Object literals)
+	 *  Arrays
+	 *  You may pass an array slides (using either method described above, URLs or Object literals)
 	 *    ! You must also pass an array of slot numbers, not an integer.
 	 *    Mixing array and non array arguments will result in an error.
 	 *
@@ -329,15 +329,11 @@
 		for(var i = 0; i < slide.length; i++){
 			//add to ajax queue
 			if(isString(slide[i]) && isNumber(slot[i])){
-				//say("!A! Queueing URLs " + slide + " in slots " + slot);
-				this.Ajax.addToQueue(slide[i], slot[i]); //'slide' is actually a string here
+				//'slide' is actually a string here
+				this.Ajax.addToQueue(slide[i], slot[i]); 
 			};
 			//add directly to slideshow.slides
 			if(isObject(slide[i]) && isNumber(slot[i]) && ! isArray(slide[i]) ){
-				//say('adding slide to slot ' + slot);
-				/*if(! this.validSlide(slide[i])){
-					throw new Error("Invalid slide. Attempting to add to slot " + slot[i]);
-				}*/
 				this.addSlideObject(slide[i], slot[i]);		
 			};
 		}
@@ -345,7 +341,7 @@
 
 	/**
 	 * @description Add a slide to the stack for the real slot
-	 * Use Slideshow.addSlide() to add slides
+	 *  Use Slideshow.addSlide() to add slides
 	 *
 	 * @param {Object} The slide object literal
 	 * @param {number} Slot number between 1 and params.slidecount
@@ -356,18 +352,18 @@
 	}
 
 	/**
-	 * Returns a slide for the real slot
-	 * @param int [slot 1-6]
-	 * @return object [slide object]
+	 * @description Returns a slide for the real slot
+	 * @param {number} Slot number between 1 and params.slidecount
+	 * @return {Object} A slide object
 	 */
 	Slideshow.prototype.getSlide = function(slot){
 		return this.slides[slot];
 	}
 
 	/**
-	 * Checks if a given object is a valid slideshow slide
-	 * @param object
-	 * @return boolean [true if slide is valid]
+	 * @description Checks if a given object is a valid slideshow slide
+	 * @param {Object}
+	 * @return {boolean} True if slide is structured correctly
 	 */
 	Slideshow.prototype.validSlide = function(slide){
 		return (
@@ -384,10 +380,10 @@
 	}
 
 	/**
-	 * Checks if we have the specified number of valid slides
-	 * (default is 6, see this.params.slidecount)
-	 * @param array of slide objects
-	 * @return boolean [true if all slides are valid]
+	 * @description Checks if we have the specified number of valid slides
+	 *  (this.params.slidecount)
+	 * @param {Array} Array of slide objects
+	 * @return {boolean} True if all slides are valid
 	 */
 	Slideshow.prototype.allSlidesValid = function(slides){
 		for(var i = 1; i <= this.params.slidecount; i++){
@@ -401,14 +397,12 @@
 /* =========================== Launch ========================== */
 
 	/**
-	 * The internal method to launch the actual slideshow.
-	 * Do not call this from your web page.
+	 * @description The internal method to launch the actual slideshow.
+	 *  Do not call this from your web page.
 	 */
 	Slideshow.prototype.launch = function(){
 		say('slides should be resolved, launching slideshow');
 		if(this.allSlidesValid(this.slides)){
-			//say('all slides are valid, launching');
-
 			//build html and add to DOM
 			this.$el.html(this.buildHtml());
 			this.positionElements();
@@ -422,7 +416,7 @@
 	}
 
 	/**
-	 * Position various elements
+	 * @description Position various elements
 	 */
 	Slideshow.prototype.positionElements = function(){
 		say('positionElements');
@@ -433,7 +427,8 @@
 	}
 
 	/**
-	 * Attach mouse and other event handlers to various elements in DOM
+	 * @description Attach mouse and other event handlers to various elements in DOM
+	 *  Make several jQuery objects available class-wide
 	 */
 	Slideshow.prototype.attachHandlers = function(){
 		say('attaching handlers');
@@ -471,10 +466,9 @@
 		}
 	}
 
-
 	/**
-	 * Animate to a numbered slide.
-	 * @param number The slide number. 1-6
+	 * @description Animate to a numbered slide.
+	 * @param {number} Slot number between 1 and params.slidecount
 	 */
 	Slideshow.prototype.goToSlide = function(number){
 		//dont animate if the slide is already open
@@ -488,10 +482,9 @@
 		this.indexcurrentlyopen = number;
 	}
 
-
 	/**
-	 * Animate the track to show the appropriate slide
-	 * @param number The slide number. 1-6
+	 * @description Animate the track to show the appropriate slide
+	 * @param {number} Slot number between 1 and params.slidecount
 	 */
 	Slideshow.prototype.animateTrack = function(number){
 		if($.support.transition){
@@ -511,9 +504,8 @@
 		}
 	}
 
-
 	/**
-	 * Animate and index open or closed
+	 * @description Animate and index open or closed
 	 * @param {Object} - $obj jQuery object reference
 	 * @param {string} - state 'open' or 'close'
 	 */
@@ -542,9 +534,9 @@
 		}
 	}
 
-
 	/**
-	 * Build slideshow HTML and components
+	 * @description Build slideshow HTML and components
+	 * @return {string} HTML for the slideshow
 	 */
 	Slideshow.prototype.buildHtml = function(){
 		say('building html');
@@ -586,7 +578,5 @@
 		html += '</div><!-- /#sts-slideshow -->';
 		return html;
 	}
-
-
 
 })( window, jQuery );
