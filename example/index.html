@@ -9,11 +9,10 @@
         <title>6 Tab Slideshow Example | AaronMartins.com</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 
         <!-- 6-tab-slideshow: -->
         <link rel="stylesheet" type="text/css" media="all" href="../src/css/slideshow.css" />
-
     </head>
     <body>
         
@@ -21,6 +20,8 @@
         <div id="myslideshow">
             <noscript><div id="noscript-notice">Please enable Javascript for the full experience.</div></noscript>
         </div>
+        <!-- <script src="../lib/easing.js"></script> -->
+        <script src="../lib/transit.js"></script>
         <script src="../src/6-tab-slideshow.js"></script>
         <script>
             //create a new slideshow
@@ -33,7 +34,7 @@
                 "indexover" : "images/example/example_index_over.png",
                 "slider" : "images/forest/slide.jpg",
                 "stampup" : "images/example/example_stamp_up.png",
-                "stampover" : "images/example/example_stamp_up.png",
+                "stampover" : "images/example/example_stamp_over.png",
                 "product_link" : "http://aaronmartins.com",
                 "stamp_top_css" : "260px"
             },1);
@@ -63,9 +64,9 @@
                 "product_link" : "http://aaronmartins.com",
                 "stamp_top_css" : "260px"
             },6);
-
+            slideshow.addSlide("../example/slides/ocean.json",6);
             //begin the slideshow on slide 1
-            slideshow.begin(1);
+            slideshow.begin(5);
         </script>
     </body>
 </html>

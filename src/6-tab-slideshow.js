@@ -4,7 +4,7 @@
  * 
  * Author: Aaron Martins
  *
- * Requires jQuery 1.4.2+
+ * Requires jQuery 1.8.2+
  *
  * Full Instructions: http://aaronmartins.com/docs/6-tab-slideshow/
  *
@@ -33,7 +33,7 @@
 	function isString(value){return typeof value === 'string';}
 	function isNumber(value){return typeof value === 'number';}
 	function isObject(value){return value !== null && typeof value === 'object';}
-	function isArray(value) {return toString.apply(value) === '[object Array]';}
+	function isArray(value) {return Object.prototype.toString.call(value) === '[object Array]';}
 	function isBoolean(value) {return typeof value === 'boolean';}
 
 	//Avoid IE console
@@ -42,6 +42,24 @@
 			console.log(str);
 		}
 	}
+
+	// jQuery.support.transition
+	// to verify that CSS3 transition is supported (or any of its browser-specific implementations)
+	$.support.transition = (function(){ 
+	    var thisBody = document.body || document.documentElement,
+	    thisStyle = thisBody.style,
+	    support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
+	    return support; 
+	})();
+	
+	
+	//Add our one easing method. This is used when CSS transitions aren't available
+	//License is included in lib/easing.js
+	$.extend($.easing, {
+	    easeOutQuart: function (x, t, b, c, d) {
+	        return -c * ((t=t/d-1)*t*t*t - 1) + b;
+	    }
+	});
 
 	/**
 	 * Slideshow object constructor
@@ -339,6 +357,7 @@
 		return true;
 	}
 
+/* =========================== Launch ========================== */
 
 	/**
 	 * The internal method to launch the actual slideshow.
@@ -349,21 +368,142 @@
 		if(this.allSlidesValid(this.slides)){
 			//say('all slides are valid, launching');
 
-			//calculate track height
-			this.params.trackheight = this.params.slideheight * this.params.slidecount;
-
 			//build html and add to DOM
 			this.$el.html(this.buildHtml());
-			
-			//TODO this.attachHandlers();
-			//TODO this.fadeIn();
+			this.positionElements();
+			this.attachHandlers();
+			this.goToSlide(this.params.slideToStartOn);
 			$('#sts-slideshow').fadeIn('fast'); //hack TODO remove
 			$('.sts-stamp').fadeIn('fast'); //hack TODO remove
+			/*this.goToSlide(6);
+			var _this = this;
+			setTimeout(function(){
+				_this.goToSlide(4);
+			},2000)*/
 		} else {	
 			throw new Error('Slideshow attempting to launch with invalid list of slides: ' + this.slides);
 		};
 	}
 
+	/**
+	 * Position various elements
+	 */
+	Slideshow.prototype.positionElements = function(){
+		say('positionElements');
+		$('#sts-slides').css('height', this.params.slideheight * this.params.slidecount + 'px');
+		for(var i = 1; i <= this.params.slidecount; i++){
+			$('#sts-slider-'+i).css('top', (this.params.slideheight * i) + 'px');
+		}
+		
+		
+	}
+
+	/**
+	 * Attach mouse and other event handlers to various elements in DOM
+	 */
+	Slideshow.prototype.attachHandlers = function(){
+		say('attaching handlers');
+		var _this = this;
+		//calculate track height
+		this.$track = $('#sts-slides');
+		
+		this.$index = [];
+		this.$stamp = [];
+		for(var i = 1; i <= this.params.slidecount; i++){
+			this.$index[i] = {
+				el: $('#sts-index-'+i),
+				up: $('#sts-index-up-'+i),
+				over:$('#sts-index-over-'+i)
+			}
+			this.$stamp[i] = {
+				el: $('#sts-stamp-'+i),
+				up: $('#sts-stamp-up-'+i),
+				over:$('#sts-stamp-over-'+i)
+			}
+			$('.sts-index').hover(
+  				function(){
+  					//$(this).data("number");
+					_this.goToSlide($(this).data("number"));
+				}
+			);
+			this.$stamp[i].over.hover(
+  				function(){
+					$(this).fadeTo('fast',1);
+				},
+				function() {
+    				$(this).fadeTo('fast',0.001);
+  				}
+			);
+		}
+	}
+
+
+	/**
+	 * Animate to a numbered slide.
+	 * @param number The slide number. 1-6
+	 */
+	Slideshow.prototype.goToSlide = function(number){
+		//dont animate if the slide is already open
+		if(this.indexcurrentlyopen != number){
+			say('going to slide ' + number);
+			this.animateTrack(number);
+			this.animateIndex(this.$index[number].over, 'open');
+		}
+
+		//set the current index number so we know it on the next goToSlide call
+		this.indexcurrentlyopen = number;
+	}
+
+	/**
+	 * Animate the track to show the appropriate slide
+	 * @param number The slide number. 1-6
+	 */
+	Slideshow.prototype.animateTrack = function(number){
+		if($.support.transition){
+			//Use transit for CSS animations
+			//Move slide track to appropriate spot
+			this.$track.transition({ top: (-1*number*this.params.slideheight),queue: false }, 200);
+		} else {
+			//Use jQuery animate
+			//Move slide track to appropriate spot
+			this.$track.stop().animate({
+				top: (-1*number*this.params.slideheight)
+			}, {
+				duration: 1000,
+				queue: false,
+				easing: "easeOutQuart"
+			});
+		}
+	}
+
+	//Animate and index open or closed
+	//$obj jQuery object reference
+	//state string 'open' or 'close'
+	Slideshow.prototype.animateIndex = function($obj, state){
+		var pos; //pixel value to move to
+		state == 'open' ? pos = 0 : pos = -220; //depends on open or close
+		
+		//only index 1 through 6 are relevant, 0 is a special case we use to avoid this call
+		if(this.indexcurrentlyopen > 0){
+			var temp = this.indexcurrentlyopen; //store value temporarily
+			this.indexcurrentlyopen = 0; //avoid repeated calls
+			this.animateIndex(this.$index[temp].over, 'close');
+		}
+
+		//if css transitions are available
+		if($.support.transition){
+			$obj.transition({ left: pos,queue: false }, 500, 'snap');
+		} else {
+			$obj.stop().animate({
+				left: pos
+			}, {
+				duration: 500,
+				queue: false,
+				easing: "easeOutQuart"
+			});		
+		}
+		
+	}
 
 	/**
 	 * Build slideshow HTML and components
@@ -375,10 +515,10 @@
 		var html = '<div id="sts-slideshow">';
 			html += '<div id="sts-indices">';
 			for(var i = 1; i <= this.params.slidecount; i++){
-				html += '<div id="sts-index-'+i+'" class="sts-index">'
-					html += _hm(_himg(this.slides[i].indexup), 'div', '', 'sts-index-up');
+				html += '<div id="sts-index-'+i+'" data-number="'+i+'" class="sts-index">'
+					html += _hm(_himg(this.slides[i].indexup), 'div', 'sts-index-up-'+i, 'sts-index-up');
 					s += '<a href="' + this.slides[i].product_link + '">';
-						html += _hm(_himg(this.slides[i].indexover), 'div', '', 'sts-index-over');
+						html += _hm(_himg(this.slides[i].indexover), 'div', 'sts-index-over-'+i, 'sts-index-over');
 					s += '</a>';
 				html += '</div>';
 			}
@@ -390,19 +530,19 @@
 					s += '<a href="' + this.slides[i].product_link + '">';
 						s += _himg(this.slides[i].slider);
 					s += '</a>';
-				s += '</div><!-- /#sts-slider-'+i+' -->';
-				s += '<div class="sts-stamp" style="top:'+this.slides[i].stamp_top_css+'">';
-					s += '<div class="sts-stamp-up">';
+				
+				s += '<div id="sts-stamp-'+i+'" class="sts-stamp" style="top:'+this.slides[i].stamp_top_css+'">';
+					s += '<div id="sts-stamp-up-'+i+'" class="sts-stamp-up">';
 						s += _himg(this.slides[i].stampup);
 					s += '</div>';
-					s += '<div class="sts-stamp-over">';
+					s += '<div id="sts-stamp-over-'+i+'"  class="sts-stamp-over">';
 						s += '<a href="' + this.slides[i].product_link + '">';
 							s += _himg(this.slides[i].stampover);
 						s += '</a>';
 					s += '</div>';
 				s += '</div><!-- /.sts-stamp -->';
-					
-				html += _hm(s, 'div', '', 'sts-slider');
+				s += '</div><!-- /#sts-slider-'+i+' -->';
+				html += s;
 			}
 			html += '</div><!-- /#sts-slides -->';
 		html += '</div><!-- /#sts-slideshow -->';

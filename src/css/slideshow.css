@@ -32,6 +32,10 @@
 	margin: 20px auto 0 auto;
 	position:relative;
 }
+
+
+
+/* six tab slideshow */
 #sts-slideshow {
 	overflow: hidden;
 	width: 910px;
@@ -40,9 +44,10 @@
 	display:none; /* will fade-in after via JS */
 	z-index:10; /* to fade-in over the pre-load image */
 }
-
-#sts {} /* six tab slideshow */
-
+#sts-slideshow a,
+#sts-slideshow img {
+	border:none;outline:none;
+}
 #sts #noscript-notice {
 	width: 910px;
 	height: 20px;
@@ -108,14 +113,15 @@
 	right: 0; /* Default - override below if necessary */
 }
 
-.sts-stamp-up, .de-stamp-over {
+.sts-stamp-up, .sts-stamp-over {
 	position: absolute !important;
 	top: 0; /* Do not change */
 	right: 0; /* Do not change */
 }
 
 .sts-stamp-over {
-	display:none; /* initially. jQuery fadeIn after page load */
+	opacity:0.001;
+	 /*display:none; initially. jQuery fadeIn after page load */
 }
 
 /* ------------------- Indices ------------------- */

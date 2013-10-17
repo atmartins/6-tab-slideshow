@@ -4,7 +4,7 @@
 	"indexover" : "images/example/example_index_over.png",
 	"slider" : "images/ocean/slide.jpg",
 	"stampup" : "images/example/example_stamp_up.png",
-    "stampover" : "images/example/example_stamp_up.png",
+    "stampover" : "images/example/example_stamp_over.png",
 	"product_link" : "http://aaronmartins.com",
-	"stamp_top_css" : "260px"
+	"stamp_top_css" : "200px"
 }
