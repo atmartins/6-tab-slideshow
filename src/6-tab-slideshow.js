@@ -487,21 +487,15 @@
 	 * @param {number} Slot number between 1 and params.slidecount
 	 */
 	Slideshow.prototype.animateTrack = function(number){
-		if($.support.transition){
-			//Use transit for CSS animations
-			//Move slide track to appropriate spot
-			this.$track.transition({ top: (-1*number*this.params.slideheight),queue: false }, 200);
-		} else {
-			//Use jQuery animate
-			//Move slide track to appropriate spot
-			this.$track.stop().animate({
-				top: (-1*number*this.params.slideheight)
-			}, {
-				duration: 1000,
-				queue: false,
-				easing: "easeOutQuart"
-			});
-		}
+		//Use jQuery animate
+		//Move slide track to appropriate spot
+		this.$track.stop().animate({
+			top: (-1*number*this.params.slideheight)
+		}, {
+			duration: 1000,
+			queue: false,
+			easing: "easeOutQuart"
+		});
 	}
 
 	/**
@@ -520,18 +514,15 @@
 			this.animateIndex(this.$index[temp].over, 'close');
 		}
 
-		//if css transitions are available
-		if($.support.transition){
-			$obj.transition({ left: pos,queue: false }, 500, 'snap');
-		} else {
-			$obj.stop().animate({
-				left: pos
-			}, {
-				duration: 500,
-				queue: false,
-				easing: "easeOutQuart"
-			});		
-		}
+
+		$obj.stop().animate({
+			left: pos
+		}, {
+			duration: 500,
+			queue: false,
+			easing: "easeOutQuart"
+		});		
+
 	}
 
 	/**
@@ -547,9 +538,9 @@
 			for(var i = 1; i <= this.params.slidecount; i++){
 				html += '<div id="sts-index-'+i+'" data-number="'+i+'" class="sts-index">'
 					html += _hm(_himg(this.slides[i].indexup), 'div', 'sts-index-up-'+i, 'sts-index-up');
-					s += '<a href="' + this.slides[i].product_link + '">';
+					html += '<a href="' + this.slides[i].product_link + '">';
 						html += _hm(_himg(this.slides[i].indexover), 'div', 'sts-index-over-'+i, 'sts-index-over');
-					s += '</a>';
+					html += '</a>';
 				html += '</div>';
 			}
 			html += '</div><!-- /#sts-indices -->';
