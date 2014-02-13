@@ -26,15 +26,9 @@
  */
 (function( window, $, undefined ) {
 	"use strict";
-
-	//temp. mimic modernizr
-	//var csstransitions = true;
-	/*if(csstransitions){
-		$('body').addClass('csstransitions');
-	}*/
 	
-	//We must have the jQuery
-	if(! window.jQuery ){ throw new Error('Slideshow requires jQuery 1.8.2+'); };
+	//We must have the jQuery and Modernizrs
+	if( ! window.jQuery || ! window.Modernizr ){ throw new Error('Slideshow requires jQuery 1.8.2+ and Modernizr.csstransitions'); };
 
 	//Add the slideshow object to the window (global) scope
 	window.Slideshow = Slideshow;
@@ -125,7 +119,7 @@
 	 */
 	Slideshow.prototype.params = {
 		//@type {string} version number
-		version            : '1.0',
+		version            : '1.1',
 
 		//@type {boolean} after slideshow appears, set to true to prevent future calls to fadeIn.
 		fadedIn            : false,
@@ -449,8 +443,12 @@
 		this.$index = [];
 		this.$stamp = [];
 
+
+
 		//cycle through all slides and attach event handlers
 		for(var i = 1; i <= this.params.slidecount; i++){
+			
+			//class-wide use
 			this.$index[i] = {
 				el: $('#sts-index-'+i),
 				up: $('#sts-index-up-'+i),
@@ -462,15 +460,14 @@
 				up: $('#sts-stamp-up-'+i),
 				over:$('#sts-stamp-over-'+i)
 			}
-
-			$('.sts-index').hover(
+			
+			$('#sts-index-'+i).hover(
   				function(){
-  					//$(this).data("number");
 					_this.goToSlide($(this).data("number"));
 				}
 			);
 			
-			this.$stamp[i].el.hover(
+			$('#sts-stamp-' + i).hover(
   				function(){
   					_this.animateStamp($(this), 1);
 				},
@@ -560,7 +557,6 @@
 	 * @param {string} - state Either 'on' or 'off'
 	 */
 	Slideshow.prototype.animateStamp = function($obj, value){
-		
 		//CSS3:
 		if(Modernizr.csstransitions){
 			//this.$track.css('transition','all 1s');

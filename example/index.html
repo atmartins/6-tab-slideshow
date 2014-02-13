@@ -12,7 +12,7 @@
         
         <!-- 6-tab-slideshow requires jQuery 1.8.2 or higher -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-
+          
         <!-- 6-tab-slideshow: -->
         <link rel="stylesheet" type="text/css" media="all" href="../src/css/slideshow.css" />
     </head>
@@ -26,7 +26,7 @@
         <!-- <script src="../lib/easing.js"></script> 
         <script src="../lib/transit.js"></script>-->
 
-        <script src="../src/6-tab-slideshow.min.js"></script>
+        <script src="../src/6-tab-slideshow.js"></script>
         <script type="text/javascript">
             //create a new slideshow
             var slideshow = new Slideshow('#myslideshow');
@@ -44,8 +44,10 @@
             },1);
             
             slideshow.addSlide(
-                ["../example/slides/forest.json","../example/slides/ocean.json"],
-                [2,3]
+                [ "../example/slides/forest.json",
+                  "../example/slides/ocean.json" ],
+                [ 2,
+                  3 ]
             );
             
             slideshow.addSlide("../example/slides/river.json", 4)
@@ -77,5 +79,7 @@
             //begin the slideshow on this slide
             slideshow.begin(5);
         </script>
+
+     
     </body>
 </html>
