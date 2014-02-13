@@ -97,6 +97,24 @@
 	z-index: 50;
 }
 
+/* If CSS3 transitions are supported */
+.csstransitions #sts-slides {
+/* jQuery will assign the top px value to animate to. See 6-tab-slideshow.js */
+	-webkit-transition: all .7s;
+	   -moz-transition: all .7s;
+	    -ms-transition: all .7s;
+	     -o-transition: all .7s;
+	        transition: all .7s;
+}
+
+.csstransitions .sts-index-over {
+	-webkit-transition: all .3s;
+	   -moz-transition: all .3s;
+	    -ms-transition: all .3s;
+	     -o-transition: all .3s;
+	        transition: all .3s;
+}
+
 #sts-loader { margin: 150px 0 0 360px; }
 #sts-loader p {
 	color:#999;
@@ -120,10 +138,30 @@
 }
 
 .sts-stamp-over {
-	opacity:0.001;
-	 /*display:none; initially. jQuery fadeIn after page load */
-}
+	/* initially. jQuery fadeIn on mouse hover */
+		/* IE 8 */
+	  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
 
+	  /* IE 5-7 */
+	  filter: alpha(opacity=0);
+
+	  /* Netscape */
+	  -moz-opacity: 0.001;
+
+	  /* Safari 1.x */
+	  -khtml-opacity: 0.001;
+
+	  /* Good browsers */
+	  opacity: 0.001;
+	 
+}
+.csstransitions .sts-stamp-over  {
+	-webkit-transition: all .3s;
+	   -moz-transition: all .3s;
+	    -ms-transition: all .3s;
+	     -o-transition: all .3s;
+	        transition: all .3s;
+}
 /* ------------------- Indices ------------------- */
 /* This is what detects mouse hover, do not put images or styles here */
 .sts-index-up {
