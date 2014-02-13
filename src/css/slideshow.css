@@ -76,6 +76,7 @@
 	position: absolute;
 	top: 0;
 	left: 0;
+	z-index:75; /* IE 7 */
 }
 
 #sts-slides > div {
@@ -187,7 +188,9 @@
 .sts-index {
     font-family: arial, helvetica, sans-serif;
 }
-
+.sts-index a {
+	text-decoration: none;
+}
 .sts-index-up.text {
     color: #a7a9ac;
     padding: 20px 0 20px 10px;
