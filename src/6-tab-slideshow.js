@@ -1,6 +1,6 @@
 /**
  * The 6 Tab Slideshow
- * version 1.0
+ * version 1.1
  * 
  * Author: Aaron Martins
  *
@@ -369,8 +369,7 @@
 		return (
 			isObject(slide)
 			&& isString(slide.alt)
-			&& isString(slide.indexup)
-			&& isString(slide.indexover)
+			&& (  ( isString(slide.indexup) && isString(slide.indexover) ) || ( isString(slide.index_line_1) && isString(slide.index_line_2) )  )
 			&& isString(slide.slider)
 			&& isString(slide.stampup)
 			&& isString(slide.stampover)
@@ -411,7 +410,7 @@
 			$('#sts-slideshow').fadeIn('fast'); //hack TODO remove
 			$('.sts-stamp').fadeIn('fast'); //hack TODO remove
 		} else {	
-			throw new Error('Slideshow attempting to launch with invalid list of slides: ' + this.slides);
+			throw Error('Slideshow attempting to launch with invalid list of slides.');
 		};
 	}
 
@@ -526,6 +525,41 @@
 	}
 
 	/**
+	 * Build the HTML for the index up and over.
+	 * Determines if indices are an image (old style), or plain text (new)
+	 * @since 1.1
+	 * @param {object} slide object
+	 * @param {object} slide number (1-6 usually)
+	 * @return {string} HTML for the entire index up and over DOM elements (for one slide)
+	 */
+	Slideshow.prototype.buildIndices = function(slide, number){
+		var html = '';
+		if(slide.indexup && slide.indexover){
+			//indices are declared as images in the slide definition (JSON) (old style)
+			//TODO remove eventually
+			html += '<div id="sts-index-'+number+'" data-number="'+number+'" class="sts-index">'
+				html += _hm(_himg(slide.indexup), 'div', 'sts-index-up-'+number, 'sts-index-up');
+				html += '<a href="' + slide.product_link + '">';
+					html += _hm(_himg(slide.indexover), 'div', 'sts-index-over-'+number, 'sts-index-over');
+				html += '</a>';
+			html += '</div>';
+		} else if(slide.index_line_1 && slide.index_line_2) {
+			//indices are declared as text in the slide definition (JSON)
+			html += '<div id="sts-index-'+number+'" data-number="'+number+'" class="sts-index">'
+				html += _hm('<div class="line-1">' + slide.index_line_1 + '</div><div class="line-2">' + slide.index_line_2 + '</div>', 'div', 'sts-index-up-'+number, 'sts-index-up text');
+		
+				html += '<a href="' + slide.product_link + '">';
+					html += _hm('<div class="line-1">' + slide.index_line_1 + '</div><div class="line-2">' + slide.index_line_2 + '</div>', 'div', 'sts-index-over-'+number, 'sts-index-over text');
+				html += '</a>';
+			html += '</div>';
+		} else {
+			throw Error('Incorrect indices for slide ' + number);
+		}
+
+		return html;
+	}
+
+	/**
 	 * @description Build slideshow HTML and components
 	 * @return {string} HTML for the slideshow
 	 */
@@ -536,12 +570,7 @@
 		var html = '<div id="sts-slideshow">';
 			html += '<div id="sts-indices">';
 			for(var i = 1; i <= this.params.slidecount; i++){
-				html += '<div id="sts-index-'+i+'" data-number="'+i+'" class="sts-index">'
-					html += _hm(_himg(this.slides[i].indexup), 'div', 'sts-index-up-'+i, 'sts-index-up');
-					html += '<a href="' + this.slides[i].product_link + '">';
-						html += _hm(_himg(this.slides[i].indexover), 'div', 'sts-index-over-'+i, 'sts-index-over');
-					html += '</a>';
-				html += '</div>';
+				html += this.buildIndices(this.slides[i], i);			
 			}
 			html += '</div><!-- /#sts-indices -->';
 		

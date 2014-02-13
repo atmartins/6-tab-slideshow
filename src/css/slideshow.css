@@ -139,12 +139,50 @@
 .sts-index-over {
 	width: 200px;
 	height: 77px;
-	background-color: #00472b;
+	background-color: #00704a;
 	position: absolute;
 	top: -1px;
 	left: -220px;
 	z-index: 75;
 }
+/* ---- Indices (text, new style) ---- */
+.sts-index {
+    font-family: arial, helvetica, sans-serif;
+}
+
+.sts-index-up.text {
+    color: #a7a9ac;
+    padding: 20px 0 20px 10px;
+    height: 35px;
+    width: 150px;
+}
+
+.sts-index-over.text {
+    color: white;
+    padding: 17px 10px;
+    height: 43px;
+    width: 180px;
+}
+
+.sts-index .text .line-1 {
+    font-size: 18px;
+    font-weight:bold;
+}
+
+.sts-index .text .line-2 {
+    font-size: 16px;
+    line-height:24px;
+}
+.sts-index-up.text .line-1 {
+    font-size: 16px;
+    
+}
+
+.sts-index-up.text .line-2 {
+    font-size: 14px;
+    
+}
+
 
 .sts-index {
 	width: 200px;
